@@ -1,8 +1,7 @@
-package com.onlinebookstore.controller;
+package com.onlinebookstore.controllers;
 
-import com.onlinebookstore.domain.User;
-
-import com.onlinebookstore.repository.UserRepository;
+import com.onlinebookstore.dao.UserDao;
+import com.onlinebookstore.domain.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,13 +15,14 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDao userDao;
 
     @GetMapping("/get_users")
-    public ResponseEntity<List<User>> getUsers() {
-        List<User> user = userRepository.findAll();
+    public ResponseEntity<List<UserEntity>> getUsers() {
+        List<UserEntity> user = userDao.findAll();
 
         return ResponseEntity.ok(user);
     }
+
 
 }
