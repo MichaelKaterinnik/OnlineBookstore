@@ -1,61 +1,29 @@
-package com.onlinebookstore.domain;
+package com.onlinebookstore.models;
 
-import jakarta.persistence.*;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-@Entity
-@Table(name = "books", schema = "online_bookstore")
-public class BookEntity {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name = "id")
+@Component
+public class BookDTO {
     private Integer id;
-    @Basic
-    @Column(name = "title")
     private String title;
-    @Basic
-    @Column(name = "description")
     private String description;
-    @Basic
-    @Column(name = "author_id", insertable = false, updatable = false)
     private Integer authorId;
-    @Basic
-    @Column(name = "collection_id", insertable = false, updatable = false)
+    private String authorFirstName;
+    private String authorLastName;
+    private List<String> genres;
     private Integer collectionId;
-    @Basic
-    @Column(name = "rating")
     private BigDecimal rating;
-    @Basic
-    @Column(name = "price")
     private BigDecimal price;
-    @Basic
-    @Column(name = "quantity")
     private Integer quantity;
-    @Basic
-    @Column(name = "availability")
     private Boolean availability;
-    @Basic
-    @Column(name = "cover_image")
     private byte[] coverImage;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", referencedColumnName = "id")
-    private AuthorEntity author;
-
-    @ManyToMany(mappedBy = "books")
-    private List<CollectionEntity> collections = new ArrayList<>();
 
     public Integer getId() {
         return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getTitle() {
@@ -122,14 +90,6 @@ public class BookEntity {
         this.coverImage = coverImage;
     }
 
-    public AuthorEntity getAuthor() {
-        return author;
-    }
-
-    public List<CollectionEntity> getCollections() {
-        return collections;
-    }
-
     public Integer getQuantity() {
         return quantity;
     }
@@ -138,20 +98,43 @@ public class BookEntity {
         this.quantity = quantity;
     }
 
+    public String getAuthorFirstName() {
+        return authorFirstName;
+    }
+
+    public void setAuthorFirstName(String authorFirstName) {
+        this.authorFirstName = authorFirstName;
+    }
+
+    public String getAuthorLastName() {
+        return authorLastName;
+    }
+
+    public void setAuthorLastName(String authorLastName) {
+        this.authorLastName = authorLastName;
+    }
+
+    public List<String> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
+    }
+
 
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BookEntity that = (BookEntity) o;
-        return Objects.equals(id, that.id) && Objects.equals(title, that.title) && Objects.equals(description, that.description) && Objects.equals(authorId, that.authorId) && Objects.equals(collectionId, that.collectionId) && Objects.equals(rating, that.rating) && Objects.equals(price, that.price) && Objects.equals(availability, that.availability) && Arrays.equals(coverImage, that.coverImage);
+        BookDTO bookDTO = (BookDTO) o;
+        return id.equals(bookDTO.id) && title.equals(bookDTO.title) && Objects.equals(description, bookDTO.description) && Objects.equals(authorId, bookDTO.authorId) && Objects.equals(collectionId, bookDTO.collectionId) && Objects.equals(rating, bookDTO.rating) && Objects.equals(price, bookDTO.price) && Objects.equals(availability, bookDTO.availability);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, title, description, authorId, collectionId, rating, price, availability);
-        result = 31 * result + Arrays.hashCode(coverImage);
-        return result;
+        return Objects.hash(id, title, description, authorId, collectionId, rating, price);
     }
+
 }

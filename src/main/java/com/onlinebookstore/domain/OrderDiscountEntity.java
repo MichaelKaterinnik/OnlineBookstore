@@ -12,11 +12,15 @@ public class OrderDiscountEntity {
     @Column(name = "id")
     private Integer id;
     @Basic
-    @Column(name = "order_id")
+    @Column(name = "order_id", insertable=false, updatable=false)
     private Integer orderId;
     @Basic
     @Column(name = "discount_id")
     private Integer discountId;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    private OrderEntity order;
 
     public Integer getId() {
         return id;

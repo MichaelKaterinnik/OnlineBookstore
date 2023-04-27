@@ -19,10 +19,11 @@ public interface OrderItemDao extends JpaRepository<OrderItemEntity, Integer> {
 
     Optional<OrderItemEntity> findById(Integer id);
 
+    OrderItemEntity getById(Integer id);
+
 
     @Query("SELECT oi.book FROM OrderItemEntity oi WHERE oi.order.id = :orderId")
     List<BookEntity> findBooksByOrderId(@Param("orderId") Integer orderId);
-
 
     @Override
     <S extends OrderItemEntity> S save(S entity);

@@ -1,41 +1,23 @@
-package com.onlinebookstore.domain;
+package com.onlinebookstore.models;
 
-import jakarta.persistence.*;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Entity
-@Table(name = "discounts", schema = "online_bookstore")
-public class DiscountEntity {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name = "id")
+@Component
+public class DiscountDTO {
     private Integer id;
-    @Basic
-    @Column(name = "code")
     private String code;
-    @Basic
-    @Column(name = "description")
     private String description;
-    @Basic
-    @Column(name = "discount_percentage")
     private BigDecimal discountPercentage;
-    @Basic
-    @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime startDate;
-    @Basic
-    @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime endDate;
+
 
     public Integer getId() {
         return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getCode() {
@@ -78,12 +60,13 @@ public class DiscountEntity {
         this.endDate = endDate;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DiscountEntity that = (DiscountEntity) o;
-        return Objects.equals(id, that.id) && Objects.equals(code, that.code) && Objects.equals(description, that.description) && Objects.equals(discountPercentage, that.discountPercentage) && Objects.equals(startDate, that.startDate) && Objects.equals(endDate, that.endDate);
+        DiscountDTO that = (DiscountDTO) o;
+        return id.equals(that.id) && Objects.equals(code, that.code) && Objects.equals(description, that.description) && Objects.equals(discountPercentage, that.discountPercentage) && startDate.equals(that.startDate) && endDate.equals(that.endDate);
     }
 
     @Override
@@ -91,3 +74,4 @@ public class DiscountEntity {
         return Objects.hash(id, code, description, discountPercentage, startDate, endDate);
     }
 }
+

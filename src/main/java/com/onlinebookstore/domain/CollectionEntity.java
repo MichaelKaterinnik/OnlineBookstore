@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "genre_collections", schema = "online_bookstore")
-public class GenreCollectionEntity {
+public class CollectionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
@@ -75,11 +75,16 @@ public class GenreCollectionEntity {
         this.updatedAt = updatedAt;
     }
 
+    public List<BookEntity> getBooks() {
+        return books;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GenreCollectionEntity that = (GenreCollectionEntity) o;
+        CollectionEntity that = (CollectionEntity) o;
         return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt);
     }
 
@@ -87,4 +92,5 @@ public class GenreCollectionEntity {
     public int hashCode() {
         return Objects.hash(id, name, description, createdAt, updatedAt);
     }
+
 }

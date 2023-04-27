@@ -1,37 +1,17 @@
-package com.onlinebookstore.domain;
+package com.onlinebookstore.models;
 
-import jakarta.persistence.*;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-@Entity
-@Table(name = "order_items", schema = "online_bookstore")
-public class OrderItemEntity {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name = "id")
+@Component
+public class OrderItemDTO {
     private Integer id;
-    @Basic
-    @Column(name = "order_id", insertable = false, updatable = false)
     private Integer orderId;
-    @Basic
-    @Column(name = "book_id", insertable = false, updatable = false)
     private Integer bookId;
-    @Basic
-    @Column(name = "quantity")
     private Integer quantity;
-    @Basic
-    @Column(name = "book_price")
     private BigDecimal bookPrice;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private OrderEntity order;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id", referencedColumnName = "id")
-    private BookEntity book;
 
 
     public Integer getId() {
@@ -71,15 +51,15 @@ public class OrderItemEntity {
     }
 
     public void setBookPrice(BigDecimal bookPrice) {
-        this.bookPrice = book.getPrice();
+        this.bookPrice = bookPrice;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OrderItemEntity that = (OrderItemEntity) o;
-        return Objects.equals(id, that.id) && Objects.equals(orderId, that.orderId) && Objects.equals(bookId, that.bookId) && Objects.equals(quantity, that.quantity) && Objects.equals(bookPrice, that.bookPrice);
+        OrderItemDTO that = (OrderItemDTO) o;
+        return id.equals(that.id) && Objects.equals(orderId, that.orderId) && Objects.equals(bookId, that.bookId) && Objects.equals(quantity, that.quantity) && Objects.equals(bookPrice, that.bookPrice);
     }
 
     @Override

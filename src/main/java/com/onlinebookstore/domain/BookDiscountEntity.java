@@ -12,11 +12,15 @@ public class BookDiscountEntity {
     @Column(name = "id")
     private Integer id;
     @Basic
-    @Column(name = "book_id")
+    @Column(name = "book_id", insertable=false, updatable=false)
     private Integer bookId;
     @Basic
     @Column(name = "discount_id")
     private Integer discountId;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id", referencedColumnName = "id")
+    private BookEntity book;
 
     public Integer getId() {
         return id;

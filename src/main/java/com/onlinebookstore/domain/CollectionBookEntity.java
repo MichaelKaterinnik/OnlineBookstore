@@ -20,7 +20,7 @@ public class CollectionBookEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "collection_id", referencedColumnName = "id")
-    private GenreCollectionEntity collection;
+    private CollectionEntity collection;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", referencedColumnName = "id")

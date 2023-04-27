@@ -21,7 +21,7 @@ public class OrderEntity {
     private Timestamp createdAt;
     @Basic
     @Column(name = "status")
-    private Object status;
+    private OrderStatus status;
     @Basic
     @Column(name = "total_price")
     private BigDecimal totalPrice;
@@ -29,6 +29,14 @@ public class OrderEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;
+
+
+    public enum OrderStatus {
+        WAITING,
+        PROCESSING,
+        DEPARTED,
+        COMPLETED
+    }
 
 
     public Integer getId() {
@@ -55,11 +63,11 @@ public class OrderEntity {
         this.createdAt = createdAt;
     }
 
-    public Object getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Object status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
 
