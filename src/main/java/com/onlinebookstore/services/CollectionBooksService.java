@@ -16,4 +16,5 @@ public interface CollectionBooksService {
 
     CollectionEntity setCollectionForNewBook(Integer collectionId, Integer bookId);
 
+    void deleteById(Integer integer);
 }

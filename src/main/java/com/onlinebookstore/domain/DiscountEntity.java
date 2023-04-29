@@ -1,6 +1,10 @@
 package com.onlinebookstore.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
@@ -16,18 +20,25 @@ public class DiscountEntity {
     private Integer id;
     @Basic
     @Column(name = "code")
+    @Pattern(regexp = "^[a-zA-Z0-9]{8}$", message = "Код повинен складатись з 8 символів (латиниця, числові символи)")
     private String code;
     @Basic
     @Column(name = "description")
+    @Pattern(regexp = "^[\\p{L}0-9\\s.,;:!?'\"()\\[\\]{}«»-]+$", message = "Опис знижки має бути українською мовою")
+    @Size(max = 255, message = "Опис повинен містити не більше 255 символів")
     private String description;
     @Basic
     @Column(name = "discount_percentage")
+    @DecimalMin(value = "1", message = "Відсоток знижки не може бути менше 1%")
+    @DecimalMax(value = "100", message = "Відсоток знижки не може бути більше 100%")
     private BigDecimal discountPercentage;
     @Basic
     @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @Pattern(regexp = "^\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}:\\d{2}$", message = "Дата початку дії знижки має бути зазначена у форматі dd-MM-yyyy HH:mm:ss")
     private LocalDateTime startDate;
     @Basic
     @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @Pattern(regexp = "^\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}:\\d{2}$", message = "Дата кінця дії знижки має бути зазначена у форматі dd-MM-yyyy HH:mm:ss")
     private LocalDateTime endDate;
 
     public Integer getId() {

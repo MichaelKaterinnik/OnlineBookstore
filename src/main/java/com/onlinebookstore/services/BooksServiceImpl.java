@@ -8,6 +8,9 @@ import com.onlinebookstore.models.BookDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,9 +25,9 @@ public class BooksServiceImpl implements BooksService {
     @Autowired
     private AuthorsService authorsService;
     @Autowired
-    private CollectionsServiceImpl collectionsService;
+    private CollectionsService collectionsService;
     @Autowired
-    private CollectionBooksServiceImpl collectionBooksService;
+    private CollectionBooksService collectionBooksService;
     @Autowired
     private EntityManager entityManager;
 
@@ -33,7 +36,8 @@ public class BooksServiceImpl implements BooksService {
         return new BookEntity();
     }
 
-
+    // add-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void addNewBook(BookDTO book) {
         BookEntity newBook = createBook();
         book.setTitle(book.getTitle());
@@ -69,6 +73,8 @@ public class BooksServiceImpl implements BooksService {
         booksRepository.save(newBook);
     }
 
+    // delete-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteBookByID(Integer bookID) {
         booksRepository.deleteById(bookID);
     }
@@ -164,24 +170,31 @@ public class BooksServiceImpl implements BooksService {
     /**
      * Блок методів для оновлення об'єктів типу "Книга" у БД:
      */
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateBookInfo(Integer bookID, String description, BigDecimal rating, BigDecimal price, Integer quantity, Boolean availability, byte[] coverImage) {
         booksRepository.updateAllBookInfo(bookID, description, rating, price, quantity, availability, coverImage);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateBookDescription(Integer bookID, String description) {
         booksRepository.updateBookDescription(bookID, description);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateBookRating(Integer bookID, BigDecimal newRating) {
         booksRepository.updateBookRating(bookID, newRating);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateBookPrice(Integer bookID, BigDecimal newPrice) {
         booksRepository.updateBookPrice(bookID, newPrice);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateBookQuantity(Integer bookID, Integer newQuantity) {
         booksRepository.updateBookQuantity(bookID, newQuantity);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateBookAvailability(Integer bookID, Boolean availability) {
         booksRepository.updateBookAvailability(bookID, availability);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateBookCover(Integer bookID, byte[] newCoverImage) {
         booksRepository.updateBookImage(bookID, newCoverImage);
     }

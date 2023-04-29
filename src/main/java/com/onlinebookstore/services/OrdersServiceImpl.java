@@ -6,6 +6,9 @@ import com.onlinebookstore.domain.*;
 import com.onlinebookstore.models.OrderDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +24,7 @@ public class OrdersServiceImpl implements OrdersService {
     @Autowired
     private DiscountsService discountsService;
     @Autowired
-    private UserDiscountsServiceImpl userDiscountsService;
+    private UserDiscountsService userDiscountsService;
 
 
     public OrderEntity createOrder() {
@@ -29,6 +32,8 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
 
+    // add-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void addOrder(OrderDTO orderDTO) {
         OrderEntity newOrder = createOrder();
         newOrder.setUserId(orderDTO.getUserId());
@@ -37,6 +42,7 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
 
+    // get-methods:
     public OrderEntity getOrderById(Integer orderID) throws EntityNotFoundException {
         Optional<OrderEntity> optionalOrder = orderRepository.findById(orderID);
         if (optionalOrder.isPresent()) {
@@ -53,20 +59,24 @@ public class OrdersServiceImpl implements OrdersService {
         return booksService.findBooksByOrderId(orderID);
     }
 
+
+    // update-methods:
     /**
-     * WAITING - до відправки замовлення на сервер (можливо змінювати склад замовлення та ціну)
-     * PROCESSING - після відправки замовлення до магазину, не може змінюватись склад та ціна
-     * DEPARTED - оформлене та відправлене до замовника поштою
-     * COMPLETED - виконане
+     * WAITING - until the order is sent to the server (it is possible to change the composition of the order and the price)
+     * PROCESSING - after sending the order to the store, the composition and price cannot be changed
+     * DEPARTED - issued and sent to the customer by mail
+     * COMPLETED - done
      */
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateOrderStatus(Integer orderID, OrderEntity.OrderStatus status) {
         orderRepository.updateOrderStatus(orderID, status);
     }
 
     /**
-     * Метод застоування знижки за промокодом/ Застосовується після додавання всіх книг до замовлення, перед
-     * застосуванням знижки за промокодом та відправленням замовлення (зміною на статус 'PROCESSING')
+     * The method of claiming a discount using a promotional code. It is applied after adding all the books to the order, before
+     * applying the discount according to the promotional code and sending the order (by changing the status to 'PROCESSING')
      */
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void applyUserDiscountToOrder(OrderEntity order, Integer userID) throws DiscountCannotBeAppliedToThisOrder {
         UserDiscountEntity userDiscount = userDiscountsService.findUserDiscountByUserId(userID);
         DiscountEntity discount = discountsService.findDiscountById(userDiscount.getDiscountId());
@@ -82,9 +92,9 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     /**
-     * Метод застоування знижки за промокодом/ Застосовується останнім при формування замовлення (після знижок
-     * на книги та користувацької знижки
+     * The method of claiming a discount using a promotional code. Applied last when ordering (after book discounts and custom discount)
      */
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void applyPromoCode(OrderEntity order, String promoCode) throws EntityNotFoundException, DiscountCannotBeAppliedToThisOrder {
         DiscountEntity orderDiscount = null;
         try {
@@ -102,9 +112,13 @@ public class OrdersServiceImpl implements OrdersService {
         }
     }
 
+
+    // delete-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteOrder(OrderEntity order) {
         orderRepository.delete(order);
     }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteOrderById(Integer orderID) {
         orderRepository.deleteById(orderID);
     }

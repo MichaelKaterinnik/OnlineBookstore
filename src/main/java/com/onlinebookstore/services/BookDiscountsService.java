@@ -26,4 +26,5 @@ public interface BookDiscountsService {
     void applyBookDiscountWhenOrdering(OrderItemEntity newOrderItem, BookEntity orderingBook);
     boolean ifBookIsDiscounted(Integer bookID);
 
+    void deleteById(Integer id);
 }

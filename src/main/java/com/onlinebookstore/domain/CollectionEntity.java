@@ -1,6 +1,8 @@
 package com.onlinebookstore.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -16,9 +18,13 @@ public class CollectionEntity {
     private Integer id;
     @Basic
     @Column(name = "name")
+    @Pattern(regexp = "^[а-щА-ЩЬьЮюЯяІіЇїЄєҐґ'\\s]+$", message = "Назва категорії книг повинна бути українською мовою")
+    @Size(max = 45, message = "Назва повинна містити не більше 45 символів")
     private String name;
     @Basic
     @Column(name = "description")
+    @Pattern(regexp = "^[0-9а-щА-ЩЬьЮюЯяІіЇїЄєҐґ\\p{Punct}\\s]*$", message = "Опис категорії книг повинен бути українською мовою")
+    @Size(max = 500, message = "Опис категорії має містити не більше 45 символів")
     private String description;
     @Basic
     @Column(name = "created_at")

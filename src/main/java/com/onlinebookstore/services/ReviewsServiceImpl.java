@@ -7,6 +7,9 @@ import com.onlinebookstore.domain.UserEntity;
 import com.onlinebookstore.models.ReviewDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,6 +25,8 @@ public class ReviewsServiceImpl implements ReviewsService {
     }
 
 
+    // add-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void addNewReview(ReviewDTO reviewDTO) {
         ReviewEntity newReview = createReview();
         newReview.setUserId(reviewDTO.getUserId());
@@ -31,13 +36,19 @@ public class ReviewsServiceImpl implements ReviewsService {
         reviewsRepository.save(newReview);
     }
 
+
+    // delete-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteReviewById(Integer reviewID) {
         reviewsRepository.deleteById(reviewID);
     }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteReview(ReviewEntity review) {
         reviewsRepository.delete(review);
     }
 
+
+    // get-methods:
     public ReviewEntity findReviewById(Integer reviewID) throws EntityNotFoundException {
         Optional<ReviewEntity> optionalReview = reviewsRepository.findById(reviewID);
         if (optionalReview.isPresent()) {
@@ -58,12 +69,16 @@ public class ReviewsServiceImpl implements ReviewsService {
     }
 
 
+    // update-methods:
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateReviewComment(Integer reviewID, String newComment) {
         reviewsRepository.updateReviewComment(reviewID, newComment);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateReviewRating(Integer reviewID, BigDecimal newRating) {
         reviewsRepository.updateReviewRating(reviewID, newRating);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateReview(Integer reviewID, String newComment, BigDecimal newRating) {
         reviewsRepository.updateReview(reviewID, newComment, newRating);
     }

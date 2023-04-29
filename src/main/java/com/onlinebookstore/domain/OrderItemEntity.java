@@ -1,6 +1,7 @@
 package com.onlinebookstore.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -20,6 +21,7 @@ public class OrderItemEntity {
     private Integer bookId;
     @Basic
     @Column(name = "quantity")
+    @Min(value = 1, message = "Кількість книг не може бути меншою за 1")
     private Integer quantity;
     @Basic
     @Column(name = "book_price")

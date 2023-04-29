@@ -1,6 +1,7 @@
 package com.onlinebookstore.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.Objects;
 
@@ -13,9 +14,11 @@ public class CategoryEntity {
     private Integer id;
     @Basic
     @Column(name = "name")
+    @Pattern(regexp = "^[а-щА-ЩЬьЮюЯяІіЇїЄєҐґ'\\s]+$", message = "Назва категорії книг повинна бути українською мовою")
     private String name;
     @Basic
     @Column(name = "description")
+    @Pattern(regexp = "^[0-9а-щА-ЩЬьЮюЯяІіЇїЄєҐґ\\p{Punct}\\s]*$", message = "Опис категорії книг повинен бути українською мовою")
     private String description;
 
     public Integer getId() {

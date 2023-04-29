@@ -7,6 +7,9 @@ import com.onlinebookstore.domain.OrderItemEntity;
 import com.onlinebookstore.models.OrderItemDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,7 +19,7 @@ public class OrderItemsServiceImpl implements OrderItemsService {
     @Autowired
     private OrderItemDao orderItemRepository;
     @Autowired
-    private OrdersServiceImpl ordersService;
+    private OrdersService ordersService;
     @Autowired
     private BooksService booksService;
     @Autowired
@@ -26,9 +29,12 @@ public class OrderItemsServiceImpl implements OrderItemsService {
         return new OrderItemEntity();
     }
 
-    /**     *
-     * здійснювати перевірку замовлення на WAITING перед додаванням нової книги
+
+    // add-methods:
+    /**
+     * PLEASE NOTE that you must check the WAITING order status in controller before adding a new book to it
      */
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void addOrderItemToOrder(OrderItemDTO orderItemDTO, Integer orderId) throws EntityNotFoundException {
         OrderItemEntity newOrderItem = createOrderItem();
         newOrderItem.setBookId(orderItemDTO.getBookId());
@@ -51,6 +57,9 @@ public class OrderItemsServiceImpl implements OrderItemsService {
         orderItemRepository.save(newOrderItem);
     }
 
+
+    // update-methods:
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateOrderPrice(Integer orderID, Integer orderItemID) {
         OrderItemEntity ourItem = orderItemRepository.getById(orderItemID);
         OrderEntity ourOrder = ordersService.getOrderById(orderID);
@@ -59,6 +68,8 @@ public class OrderItemsServiceImpl implements OrderItemsService {
         ourOrder.setTotalPrice(newPrice);
     }
 
+
+    // get-methods:
     public List<OrderItemEntity> getOrderItemsByOrderId(Integer orderID) {
         return orderItemRepository.findAllByOrderId(orderID);
     }
@@ -69,9 +80,13 @@ public class OrderItemsServiceImpl implements OrderItemsService {
         } else throw new EntityNotFoundException();
     }
 
+
+    // delete-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteOrderItemByID(Integer orderItemID) {
         orderItemRepository.deleteById(orderItemID);
     }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteOrderItem(OrderItemEntity orderItem) {
         orderItemRepository.delete(orderItem);
     }

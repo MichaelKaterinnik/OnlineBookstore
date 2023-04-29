@@ -29,4 +29,6 @@ public interface WishlistsService {
 
     void deleteWishlist(WishlistEntity wishlist);
     void deleteWishlistById(Integer id);
+    void deleteWishlistBookById(Integer integer);
+    void deleteWishlistBook(WishlistBookEntity entity);
 }

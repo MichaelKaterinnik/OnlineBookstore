@@ -7,10 +7,15 @@ import com.onlinebookstore.domain.WishlistBookEntity;
 import com.onlinebookstore.domain.WishlistEntity;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * This service-class services both Wishlists and WishlistBooks entities
+ */
 public class WishlistsServiceImpl implements WishlistsService {
     @Autowired
     private WishlistDao wishlistsRepository;
@@ -26,13 +31,15 @@ public class WishlistsServiceImpl implements WishlistsService {
     }
 
 
-
+    // add-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public WishlistEntity createNewWishlist(Integer userID) {
         WishlistEntity userWishlist = createWishlist();
         userWishlist.setUserId(userID);
         wishlistsRepository.save(userWishlist);
         return userWishlist;
     }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void addBookToWishlist(Integer wishlistID, Integer bookID) {
         WishlistBookEntity newWishlistBook = createWishlistBook();
         newWishlistBook.setWishlistId(wishlistID);
@@ -40,6 +47,9 @@ public class WishlistsServiceImpl implements WishlistsService {
         wishlistBooksRepository.save(newWishlistBook);
     }
 
+
+    // delete-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void removeBookFromWishlist(WishlistBookEntity wishlistBook) {
         wishlistBooksRepository.delete(wishlistBook);
     }
@@ -48,6 +58,7 @@ public class WishlistsServiceImpl implements WishlistsService {
     }
 
 
+    // get-methods:
     public WishlistEntity findWishlistById(Integer wishlistID) throws EntityNotFoundException {
         Optional<WishlistEntity> optionalWishlist = wishlistsRepository.findById(wishlistID);
         if (optionalWishlist.isPresent()) {
@@ -77,10 +88,22 @@ public class WishlistsServiceImpl implements WishlistsService {
         return wishlistBooksRepository.findAllByWishlistId(wishlistId);
     }
 
+
+    // delete-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteWishlist(WishlistEntity wishlist) {
         wishlistsRepository.delete(wishlist);
     }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteWishlistById(Integer id) {
         wishlistsRepository.deleteById(id);
+    }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void deleteWishlistBookById(Integer id) {
+        wishlistBooksRepository.deleteById(id);
+    }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void deleteWishlistBook(WishlistBookEntity wishlistBook) {
+        wishlistBooksRepository.delete(wishlistBook);
     }
 }

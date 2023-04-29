@@ -6,6 +6,9 @@ import com.onlinebookstore.domain.BookEntity;
 import com.onlinebookstore.domain.OrderItemEntity;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -14,16 +17,17 @@ public class BookDiscountsServiceImpl implements BookDiscountsService {
     @Autowired
     private BookDiscountDao bookDiscountsRepository;
     @Autowired
-    private DiscountsServiceImpl discountsServices;
+    private DiscountsService discountsServices;
     @Autowired
-    private BooksServiceImpl booksService;
+    private BooksService booksService;
 
 
     public BookDiscountEntity createBookDiscount() {
         return new BookDiscountEntity();
     }
 
-
+    // add-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void addNewBookDiscount(Integer bookID, Integer discountID) {
         BookDiscountEntity newBookDiscount = createBookDiscount();
         newBookDiscount.setBookId(bookID);
@@ -31,6 +35,7 @@ public class BookDiscountsServiceImpl implements BookDiscountsService {
         bookDiscountsRepository.save(newBookDiscount);
     }
 
+    // get-methods:
     public BookDiscountEntity findBookDiscountById(Integer bookDiscountID) throws EntityNotFoundException {
         Optional<BookDiscountEntity> optionalBookDiscount = bookDiscountsRepository.findById(bookDiscountID);
         if (optionalBookDiscount.isPresent()) {
@@ -50,14 +55,23 @@ public class BookDiscountsServiceImpl implements BookDiscountsService {
         } else throw new EntityNotFoundException();
     }
 
+    // update-methods:
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateDiscountIDForBookDiscount(Integer bookDiscountID, Integer newDiscountID) {
         bookDiscountsRepository.updateDiscountId(bookDiscountID, newDiscountID);
     }
 
+    // delete-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void deleteById(Integer id) {
+        bookDiscountsRepository.deleteById(id);
+    }
+
+
     /**
-     * Застосування знижки до книги. Може застосовуватись адміністратором для додавання ціни зі знижкою на сайт
-     * (метод getBookDiscountedPrice) або при додаванні книги у кошик через використання методу
-     * ifBookIsDiscounted(Integer bookID)
+     * Applying a discount to a book. Can be used by the administrator to add a discounted price to the site (method getBookDiscountedPrice)
+     * or when adding a book to the cart by using the check method ifBookIsDiscounted(Integer bookID) and
+     * applyBookDiscountWhenOrdering(OrderItemEntity newOrderItem, BookEntity orderingBook)
      */
     public void applyDiscountToBook(Integer bookID) {
         booksService.findBookByID(bookID).setPrice(getBookDiscountedPrice(bookID));

@@ -6,6 +6,8 @@ import com.onlinebookstore.domain.CollectionBookEntity;
 import com.onlinebookstore.domain.CollectionEntity;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -13,7 +15,7 @@ public class CollectionBooksServiceImpl implements CollectionBooksService {
     @Autowired
     private CollectionBookDao collectionBookRepository;
     @Autowired
-    private CollectionsServiceImpl collectionsService;
+    private CollectionsService collectionsService;
     @Autowired
     private BooksService booksService;
     @Autowired
@@ -25,6 +27,8 @@ public class CollectionBooksServiceImpl implements CollectionBooksService {
     }
 
 
+    // add-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void addBookInCollection(Integer collectionId, Integer bookId) {
         CollectionBookEntity collectionBook = new CollectionBookEntity();
         collectionBook.setCollectionId(collectionId);
@@ -38,7 +42,7 @@ public class CollectionBooksServiceImpl implements CollectionBooksService {
         collectionBookRepository.save(collectionBook);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public CollectionEntity setCollectionForNewBook(Integer collectionId, Integer bookId) {
         CollectionBookEntity collectionBook = new CollectionBookEntity();
         collectionBook.setCollectionId(collectionId);
@@ -48,6 +52,7 @@ public class CollectionBooksServiceImpl implements CollectionBooksService {
     }
 
 
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void removeBookFromCollection(Integer collectionID, Integer bookID) {
         CollectionEntity collection = collectionsService.findCollectionById(collectionID);
         BookEntity book = booksService.findBookByID(bookID);
@@ -61,6 +66,11 @@ public class CollectionBooksServiceImpl implements CollectionBooksService {
 
             collectionBookRepository.removeBookFromGenreCollection(collectionID, bookID);
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void deleteById(Integer id) {
+        collectionBookRepository.deleteById(id);
     }
 
 }

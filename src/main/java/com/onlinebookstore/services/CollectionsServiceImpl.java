@@ -5,6 +5,9 @@ import com.onlinebookstore.domain.CollectionEntity;
 import com.onlinebookstore.models.CollectionDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,12 +22,15 @@ public class CollectionsServiceImpl implements CollectionsService {
     }
 
 
+    // add-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void addNewCollection(CollectionDTO collectionDTO) {
         CollectionEntity newCollection = createCollection();
         newCollection.setName(collectionDTO.getName());
         newCollection.setDescription(collectionDTO.getDescription());
         collectionsRepository.save(newCollection);
     }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public CollectionEntity addNewCollectionForNewBook(String collectionName) {
         CollectionEntity newCollection = createCollection();
         newCollection.setName(collectionName);
@@ -33,25 +39,32 @@ public class CollectionsServiceImpl implements CollectionsService {
     }
 
 
+    // update-methods:
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateCollectionDescription(Integer id, String description) {
         collectionsRepository.updateCollectionDescription(id, description);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateCollectionName(Integer id, String newName) {
         collectionsRepository.updateCollectionName(id, newName);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateCollection(Integer id, String newName, String newDescription) {
         collectionsRepository.updateCollection(id, newName, newDescription);
     }
 
-
+    // delete-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteCollection(CollectionEntity collection) {
         collectionsRepository.delete(collection);
     }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteCollectionById(Integer id) {
         collectionsRepository.deleteById(id);
     }
 
 
+    // get-methods:
     public List<CollectionEntity> getAllCollections() {
         return collectionsRepository.findAll();
     }

@@ -1,6 +1,8 @@
 package com.onlinebookstore.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.sql.Timestamp;
 import java.util.Objects;
@@ -14,6 +16,8 @@ public class NotificationEntity {
     private Integer id;
     @Basic
     @Column(name = "message")
+    @Pattern(regexp = "^[\\p{L}0-9\\s.,;:!?'\"()\\[\\]{}«»-]+$", message = "Повідомлення має бути українською мовою")
+    @Size(max = 500, message = "Розмір повідомлення не повинен перевищувати 500 символів")
     private String message;
     @Basic
     @Column(name = "user_id")

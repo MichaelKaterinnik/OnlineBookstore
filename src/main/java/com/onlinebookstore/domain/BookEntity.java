@@ -1,6 +1,7 @@
 package com.onlinebookstore.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,9 +18,13 @@ public class BookEntity {
     private Integer id;
     @Basic
     @Column(name = "title")
+    @Pattern(regexp = "^[\\p{L}0-9\\s,.;:\"'!?()\\[\\]{}«»]+$", message = "Назва книги може містити тільки літери української мови, латинські літери, числа та деякі розділові знаки")
+    @Size(max = 2000, message = "Назва повинна містити не більше 255 символів")
     private String title;
     @Basic
     @Column(name = "description")
+    @Pattern(regexp = "^[\\p{L}0-9\\s.,;:!?'\"()\\[\\]{}«»-]+$", message = "Опис книги може містити тільки літери української мови, латинські літери, числа та основні розділові знаки")
+    @Size(max = 2000, message = "Текст повинен містити не більше 2000 символів")
     private String description;
     @Basic
     @Column(name = "author_id", insertable = false, updatable = false)
@@ -29,12 +34,18 @@ public class BookEntity {
     private Integer collectionId;
     @Basic
     @Column(name = "rating")
+    @DecimalMin(value = "1.0", message = "Рейтинг книги не може бути меншим за 1.0")
+    @DecimalMax(value = "10.0", message = "Рейтинг книги не може бути більшим за 10.0")
     private BigDecimal rating;
     @Basic
     @Column(name = "price")
+    @DecimalMin(value = "0.0", message = "Ціна книги не може бути меншою за 0.0")
+    @DecimalMax(value = "999999.99", message = "Ціна книги не може бути більшою за 999999.99")
+    @Digits(integer = 8, fraction = 2, message = "Ціна книги повинна містити не більше 8 цифр у числовій частині та 2 цифри у дробовій")
     private BigDecimal price;
     @Basic
     @Column(name = "quantity")
+    @Min(value = 0, message = "Кількість книг не може бути меншою за 0")
     private Integer quantity;
     @Basic
     @Column(name = "availability")

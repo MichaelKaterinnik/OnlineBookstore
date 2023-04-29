@@ -5,6 +5,9 @@ import com.onlinebookstore.domain.AuthorEntity;
 import com.onlinebookstore.models.AuthorDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +23,8 @@ public class AuthorsServiceImpl implements AuthorsService {
     }
 
 
+    // add-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void addNewAuthor(AuthorDTO author) {
         AuthorEntity newAuthor = createAuthor();
         newAuthor.setFirstName(author.getFirstName());
@@ -27,6 +32,7 @@ public class AuthorsServiceImpl implements AuthorsService {
         newAuthor.setBio(author.getBio());
         authorsRepository.save(newAuthor);
     }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void addNewAuthorForNewBook(String firstName, String lastName) {
         AuthorEntity newAuthor = createAuthor();
         newAuthor.setFirstName(firstName);
@@ -34,23 +40,31 @@ public class AuthorsServiceImpl implements AuthorsService {
         authorsRepository.save(newAuthor);
     }
 
+    // update-methods:
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateAuthorFirstAndLastName(Integer authorID, String firstName, String lastName) {
         authorsRepository.updateAuthorFirstAndLastName(authorID, firstName, lastName);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateAuthorBio(Integer authorID, String bio) {
         authorsRepository.updateAuthorBio(authorID, bio);
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateAuthor(Integer authorID, String firstName, String lastName, String bio) {
         authorsRepository.updateAuthor(authorID, firstName, lastName, bio);
     }
 
+    // delete-methods:
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteAuthor(AuthorEntity author) {
         authorsRepository.delete(author);
     }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteAuthorById(Integer id) {
         authorsRepository.deleteById(id);
     }
 
+    // get-methods:
     public List<AuthorEntity> getAllAuthors() {
         return authorsRepository.findAll();
     }

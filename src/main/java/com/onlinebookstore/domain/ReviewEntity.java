@@ -1,6 +1,10 @@
 package com.onlinebookstore.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -21,9 +25,13 @@ public class ReviewEntity {
     private Integer bookId;
     @Basic
     @Column(name = "comment")
+    @Pattern(regexp = "^[\\p{L}0-9\\s.,;:!?'\"()\\[\\]{}«»-]+$", message = "Відгук може містити тільки літери української мови, латинські літери або числа")
+    @Size(max = 2000, message = "Текст повинен містити не більше 2000 символів")
     private String comment;
     @Basic
     @Column(name = "rating")
+    @DecimalMin(value = "1.0", message = "Рейтинг книги не може бути меншим за 1.0")
+    @DecimalMax(value = "10.0", message = "Рейтинг книги не може бути більшим за 10.0")
     private BigDecimal rating;
     @Basic
     @Column(name = "created_at")

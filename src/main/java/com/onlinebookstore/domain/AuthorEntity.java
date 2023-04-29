@@ -1,6 +1,7 @@
 package com.onlinebookstore.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.Objects;
 
@@ -13,12 +14,15 @@ public class AuthorEntity {
     private Integer id;
     @Basic
     @Column(name = "first_name")
+    @Pattern(regexp = "^[а-щА-ЩЬьЮюЯяІіЇїЄєҐґ']{1,30}$", message = "Ім'я автора книги повинне зазначатись українською мовою")
     private String firstName;
     @Basic
     @Column(name = "last_name")
+    @Pattern(regexp = "^[а-щА-ЩЬьЮюЯяІіЇїЄєҐґ']{1,45}$", message = "Прізвище автора книги повинне зазначатись українською мовою")
     private String lastName;
     @Basic
     @Column(name = "bio")
+    @Pattern(regexp = "^[0-9\\p{Punct}а-щА-ЩЬьЮюЯяІіЇїЄєҐґ\\s]{1,2000}$", message = "Біографія автора повинна зазначатись українською. Допускаються також числові символи та знаки пунктуації")
     private String bio;
 
     public Integer getId() {

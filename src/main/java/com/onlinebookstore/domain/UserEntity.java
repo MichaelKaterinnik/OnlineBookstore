@@ -1,6 +1,8 @@
 package com.onlinebookstore.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 
 import java.sql.Timestamp;
 import java.util.Objects;
@@ -14,18 +16,23 @@ public class UserEntity {
     private Integer id;
     @Basic
     @Column(name = "first_name")
+    @Pattern(regexp = "^[а-щА-ЩЬьЮюЯяІіЇїЄєҐґA-Za-z]{1,45}$", message = "Ім'я користувача повинно бути на українській мові або латиниці, не більше 45 символів")
     private String firstName;
     @Basic
     @Column(name = "last_name")
+    @Pattern(regexp = "^[а-щА-ЩЬьЮюЯяІіЇїЄєҐґA-Za-z]{1,128}$", message = "Прізвище користувача повинно бути на українській мові або латиниці, не більше 128 символів")
     private String lastName;
     @Basic
     @Column(name = "phone")
+    @Pattern(regexp = "^\\+\\d{12}$", message = "Номер телефону повинен бути у форматі: +38 ___ ___-__-__")
     private String phone;
     @Basic
     @Column(name = "email")
+    @Email
     private String email;
     @Basic
     @Column(name = "password")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z]).{8,12}$", message = "Пароль повинен містити від 8 до 12 символів латиницею та мінімум 1 числовий символ")
     private String password;
     @Basic
     @Column(name = "create_time")
