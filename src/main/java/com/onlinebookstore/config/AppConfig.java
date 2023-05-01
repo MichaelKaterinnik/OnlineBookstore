@@ -13,25 +13,5 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @ComponentScan(basePackages = "com.onlinebookstore")
 public class AppConfig {
 
-    // BEANS:
-//    @Bean
-//    public AuthorsService authorsService() {
-//        return new AuthorsServiceImpl();
-//    }
-//
-//    @Bean
-//    public BooksService booksService() {
-//        return new BooksServiceImpl();
-//    }
-//
-//    @Bean
-//    public CollectionsService collectionsService() {
-//        return new CollectionsServiceImpl();
-//    }
-//
-//    @Bean
-//    public CollectionBooksService collectionBooksService() {
-//        return new CollectionBooksServiceImpl();
-//    }
 
 }
