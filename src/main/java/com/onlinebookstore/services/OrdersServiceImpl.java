@@ -6,6 +6,9 @@ import com.onlinebookstore.domain.*;
 import com.onlinebookstore.models.OrderDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +19,8 @@ import java.util.Optional;
 
 import static com.onlinebookstore.domain.OrderEntity.OrderStatus.WAITING;
 
+@Component
+@Service
 public class OrdersServiceImpl implements OrdersService {
     @Autowired
     private OrderDao orderRepository;
@@ -40,6 +45,14 @@ public class OrdersServiceImpl implements OrdersService {
         newOrder.setStatus(WAITING);
         orderRepository.save(newOrder);
     }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public OrderEntity addOrder(Integer userID) {
+        OrderEntity newOrder = createOrder();
+        newOrder.setUserId(userID);
+        newOrder.setStatus(WAITING);
+        orderRepository.save(newOrder);
+        return newOrder;
+    }
 
 
     // get-methods:
@@ -51,6 +64,9 @@ public class OrdersServiceImpl implements OrdersService {
     }
     public List<OrderEntity> getUserOrderHistoryById(Integer userId) {
         return orderRepository.findAllByUserId(userId);
+    }
+    public List<OrderEntity> getUserOrdersPageable(UserEntity user, Pageable pageable) {
+        return orderRepository.findAllByUser(user);
     }
     public List<OrderEntity> getUserOrders(UserEntity user) {
         return orderRepository.findAllByUser(user);
@@ -73,22 +89,25 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     /**
-     * The method of claiming a discount using a promotional code. It is applied after adding all the books to the order, before
+     * The method of claiming a discount using an already registered user Discount. It is applied after adding all the books to the order, before
      * applying the discount according to the promotional code and sending the order (by changing the status to 'PROCESSING')
      */
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void applyUserDiscountToOrder(OrderEntity order, Integer userID) throws DiscountCannotBeAppliedToThisOrder {
         UserDiscountEntity userDiscount = userDiscountsService.findUserDiscountByUserId(userID);
-        DiscountEntity discount = discountsService.findDiscountById(userDiscount.getDiscountId());
+        if (userDiscount != null) {
+            DiscountEntity discount = discountsService.findDiscountById(userDiscount.getDiscountId());
 
-        BigDecimal discountPercentage = discount.getDiscountPercentage();
-        if (order.getStatus().equals(WAITING)) {
-            BigDecimal oldPrice = order.getTotalPrice();
-            BigDecimal discountedPrice = oldPrice.multiply(BigDecimal.valueOf(100).subtract(discountPercentage)).divide(BigDecimal.valueOf(100));
+            BigDecimal discountPercentage = discount.getDiscountPercentage();
+            if (order.getStatus().equals(WAITING)) {
+                BigDecimal oldPrice = order.getTotalPrice();
+                BigDecimal discountedPrice = oldPrice.multiply(BigDecimal.valueOf(100).subtract(discountPercentage)).divide(BigDecimal.valueOf(100));
 
-            order.setTotalPrice(discountedPrice);
-        } else {
-            throw new DiscountCannotBeAppliedToThisOrder();        }
+                order.setTotalPrice(discountedPrice);
+            } else {
+                throw new DiscountCannotBeAppliedToThisOrder();
+            }
+        }
     }
 
     /**

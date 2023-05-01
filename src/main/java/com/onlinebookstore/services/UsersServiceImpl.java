@@ -3,11 +3,20 @@ package com.onlinebookstore.services;
 import com.onlinebookstore.dao.UserDao;
 import com.onlinebookstore.domain.UserEntity;
 import com.onlinebookstore.models.UserDTO;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
+@Component
+@Service
 public class UsersServiceImpl implements UsersService {
     @Autowired
     private UserDao usersRepository;
@@ -28,6 +37,30 @@ public class UsersServiceImpl implements UsersService {
         newUser.setEmail(userDTO.getEmail());
         newUser.setPassword(userDTO.getPassword());
         usersRepository.save(newUser);
+    }
+
+
+    //get-methods
+    public List<UserEntity> findAll(Pageable pageable) {
+        return usersRepository.findAll();
+    }
+    public UserEntity findById(Integer userID) throws EntityNotFoundException {
+        Optional<UserEntity> optionalUser = usersRepository.findById(userID);
+        if (optionalUser.isPresent()) {
+            return optionalUser.get();
+        } else throw new EntityNotFoundException();
+    }
+    public UserEntity findByEmail(String email) throws EntityNotFoundException {
+        Optional<UserEntity> optionalUser = usersRepository.findByEmail(email);
+        if (optionalUser.isPresent()) {
+            return optionalUser.get();
+        } else throw new EntityNotFoundException();
+    }
+    public List<UserEntity> findAllByPhone(String phone) {
+        return usersRepository.findAllByPhone(phone);
+    }
+    public List<UserEntity> findAllByPassword(String password) {
+        return usersRepository.findAllByPassword(password);
     }
 
 

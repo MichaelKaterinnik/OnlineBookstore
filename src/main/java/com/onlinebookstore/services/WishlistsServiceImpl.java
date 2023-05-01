@@ -7,6 +7,8 @@ import com.onlinebookstore.domain.WishlistBookEntity;
 import com.onlinebookstore.domain.WishlistEntity;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,8 @@ import java.util.Optional;
 /**
  * This service-class services both Wishlists and WishlistBooks entities
  */
+@Component
+@Service
 public class WishlistsServiceImpl implements WishlistsService {
     @Autowired
     private WishlistDao wishlistsRepository;
@@ -40,11 +44,12 @@ public class WishlistsServiceImpl implements WishlistsService {
         return userWishlist;
     }
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void addBookToWishlist(Integer wishlistID, Integer bookID) {
+    public WishlistBookEntity addBookToWishlist(Integer wishlistID, Integer bookID) {
         WishlistBookEntity newWishlistBook = createWishlistBook();
         newWishlistBook.setWishlistId(wishlistID);
         newWishlistBook.setBookId(bookID);
         wishlistBooksRepository.save(newWishlistBook);
+        return newWishlistBook;
     }
 
 
@@ -106,4 +111,6 @@ public class WishlistsServiceImpl implements WishlistsService {
     public void deleteWishlistBook(WishlistBookEntity wishlistBook) {
         wishlistBooksRepository.delete(wishlistBook);
     }
+
+
 }

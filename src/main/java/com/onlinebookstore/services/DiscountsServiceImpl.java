@@ -5,6 +5,8 @@ import com.onlinebookstore.domain.DiscountEntity;
 import com.onlinebookstore.models.DiscountDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
+@Component
+@Service
 public class DiscountsServiceImpl implements DiscountsService {
     @Autowired
     private DiscountDao discountsRepository;

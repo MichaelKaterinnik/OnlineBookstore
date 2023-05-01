@@ -3,11 +3,13 @@ package com.onlinebookstore.services;
 import com.onlinebookstore.dao.BookDao;
 import com.onlinebookstore.domain.AuthorEntity;
 import com.onlinebookstore.domain.BookEntity;
-import com.onlinebookstore.domain.CollectionEntity;
+import com.onlinebookstore.domain.ReviewEntity;
 import com.onlinebookstore.models.BookDTO;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,17 +21,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Component
+@Service
 public class BooksServiceImpl implements BooksService {
     @Autowired
     private BookDao booksRepository;
     @Autowired
     private AuthorsService authorsService;
     @Autowired
-    private CollectionsService collectionsService;
-    @Autowired
     private CollectionBooksService collectionBooksService;
     @Autowired
-    private EntityManager entityManager;
+    private ReviewsService reviewsService;
 
 
     public BookEntity createBook() {
@@ -38,9 +40,9 @@ public class BooksServiceImpl implements BooksService {
 
     // add-methods:
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void addNewBook(BookDTO book) {
+    public BookEntity addNewBook(BookDTO book) {
         BookEntity newBook = createBook();
-        book.setTitle(book.getTitle());
+        newBook.setTitle(book.getTitle());
         newBook.setDescription(book.getDescription());
 
         // визначаємо автора
@@ -52,25 +54,14 @@ public class BooksServiceImpl implements BooksService {
         }
 
         // визначаємо жанри книги
-        CollectionEntity newBookGenre;
-        for (String genre : book.getGenres()) {
-            CollectionEntity thisBookGenre = collectionsService.findCollectionByName(genre);
-            if (genre != null) {
-                newBookGenre = collectionBooksService.setCollectionForNewBook(thisBookGenre.getId(), newBook.getId());
-            } else {
-                newBookGenre = collectionsService.addNewCollectionForNewBook(genre);
-            }
-            newBook.getCollections().add(newBookGenre);
-            newBookGenre.getBooks().add(newBook);
-            entityManager.merge(newBook);
-            entityManager.merge(newBookGenre);
-        }
+        collectionBooksService.definingNewBookGenres(book, newBook);
 
         newBook.setPrice(book.getPrice());
         newBook.setQuantity(book.getQuantity());
         newBook.setAvailability(true);
         newBook.setCoverImage(book.getCoverImage());
         booksRepository.save(newBook);
+        return newBook;
     }
 
     // delete-methods:
@@ -90,28 +81,22 @@ public class BooksServiceImpl implements BooksService {
     public List<BookEntity> getAllBooks() {
         return booksRepository.findAll();
     }
-    public List<BookEntity> findBooksByAuthor(AuthorEntity author) {
+    public List<BookEntity> findBooksByAuthor(AuthorEntity author, Pageable pageable) {
         return booksRepository.findAllByAuthorOrderByAvailabilityDesc(author);
     }
-    public List<BookEntity> findBooksByAuthorLastName(String lastName) throws IllegalArgumentException {
-        if (lastName.length() < 2) {
-            throw new IllegalArgumentException();
-        }
+    public List<BookEntity> findBooksByAuthorLastName(String lastName, Pageable pageable) {
         return booksRepository.findAllByAuthorLastNameContainingIgnoreCaseOrderByAvailabilityDesc(lastName);
     }
-    public List<BookEntity> findBooksByAuthorFirstAndLastNames(String firstName, String lastName) {
+    public List<BookEntity> findBooksByAuthorFirstAndLastNames(String firstName, String lastName, Pageable pageable) {
         return booksRepository.findAllByAuthorFirstNameContainingIgnoreCaseOrAuthorLastNameContainingIgnoreCase(firstName, lastName);
     }
-    public List<BookEntity> findBooksByTitle(String title) throws IllegalArgumentException {
-        if (title.length() < 3) {
-            throw new IllegalArgumentException();
-        }
+    public List<BookEntity> findBooksByTitle(String title, Pageable pageable) {
         return booksRepository.findAllByTitleContainingIgnoreCase(title);
     }
     public List<BookEntity> findBooksByCollectionID(Integer id) {
         return booksRepository.findBooksByCollectionId(id);
     }
-    public List<BookEntity> findBooksByCategory(String collectionName) throws EntityNotFoundException {
+    public List<BookEntity> findBooksByCategory(String collectionName, Pageable pageable) throws EntityNotFoundException {
         return booksRepository.findByCollectionName(collectionName);
     }
     public List<BookEntity> findBooksByOrderId(Integer orderId) {
@@ -124,6 +109,9 @@ public class BooksServiceImpl implements BooksService {
         } else {
             throw new EntityNotFoundException();
         }
+    }
+    public List< BookEntity> findPopularBooks(Pageable pageable) {
+        return booksRepository.findPopularBooks();
     }
 
     /**
@@ -155,9 +143,9 @@ public class BooksServiceImpl implements BooksService {
                 .sorted(Comparator.comparing(BookEntity::getPrice))
                 .collect(Collectors.toList());
     }
-    public List<BookEntity> filterBooksByRating(List<BookEntity> books, BigDecimal minRating) {
+    public List<BookEntity> filterBooksByRating(List<BookEntity> books, BigDecimal minRating, BigDecimal maxRating) {
         return books.stream()
-                .filter(book -> book.getRating().compareTo(minRating) > 0)
+                .filter(book -> book.getRating().compareTo(minRating) >= 0 && book.getRating().compareTo(maxRating) <= 0)
                 .collect(Collectors.toList());
     }
     public List<BookEntity> filterBooksByAvailability(List<BookEntity> books) {
@@ -175,11 +163,23 @@ public class BooksServiceImpl implements BooksService {
         booksRepository.updateAllBookInfo(bookID, description, rating, price, quantity, availability, coverImage);
     }
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
+    public void updateBookDPQA(Integer bookID, String description, BigDecimal price, Integer quantity, Boolean availability) {
+        booksRepository.updateBookDPQA(bookID, description, price, quantity, availability);
+    }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void updateBookDescription(Integer bookID, String description) {
         booksRepository.updateBookDescription(bookID, description);
     }
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
-    public void updateBookRating(Integer bookID, BigDecimal newRating) {
+    public void updateBookRating(Integer bookID, Double rating) {
+        BookEntity book = findBookByID(bookID);
+        List<ReviewEntity> bookReviews = reviewsService.findBookReviews(book);
+        double reviewSum = 0.0;
+        for (ReviewEntity review : bookReviews) {
+            reviewSum += review.getRating().doubleValue();
+        }
+        BigDecimal newRating = BigDecimal.valueOf(reviewSum + rating).divide(BigDecimal.valueOf(bookReviews.size() + 1));
+
         booksRepository.updateBookRating(bookID, newRating);
     }
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)

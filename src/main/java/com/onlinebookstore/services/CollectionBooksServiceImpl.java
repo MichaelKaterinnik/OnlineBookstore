@@ -4,13 +4,17 @@ import com.onlinebookstore.dao.CollectionBookDao;
 import com.onlinebookstore.domain.BookEntity;
 import com.onlinebookstore.domain.CollectionBookEntity;
 import com.onlinebookstore.domain.CollectionEntity;
+import com.onlinebookstore.models.BookDTO;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-
+@Component
+@Service
 public class CollectionBooksServiceImpl implements CollectionBooksService {
     @Autowired
     private CollectionBookDao collectionBookRepository;
@@ -43,12 +47,11 @@ public class CollectionBooksServiceImpl implements CollectionBooksService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public CollectionEntity setCollectionForNewBook(Integer collectionId, Integer bookId) {
+    public void setCollectionForNewBook(Integer collectionId, Integer bookId) {
         CollectionBookEntity collectionBook = new CollectionBookEntity();
         collectionBook.setCollectionId(collectionId);
         collectionBook.setBookId(bookId);
         collectionBookRepository.save(collectionBook);
-        return collectionsService.findCollectionById(collectionId);
     }
 
 
@@ -71,6 +74,29 @@ public class CollectionBooksServiceImpl implements CollectionBooksService {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteById(Integer id) {
         collectionBookRepository.deleteById(id);
+    }
+
+
+
+    public void definingNewBookGenres(BookDTO book, BookEntity newBook) {
+        CollectionEntity newBookGenre;
+        for (String genre : book.getGenres()) {
+            CollectionEntity thisBookGenre = collectionsService.findCollectionByName(genre);
+            if (genre != null) {
+                setCollectionForNewBook(thisBookGenre.getId(), newBook.getId());
+                newBook.getCollections().add(thisBookGenre);
+                thisBookGenre.getBooks().add(newBook);
+                entityManager.merge(newBook);
+                entityManager.merge(thisBookGenre);
+            } else {
+                newBookGenre = collectionsService.addNewCollectionForNewBook(genre);
+                setCollectionForNewBook(newBookGenre.getId(), newBook.getId());
+                newBook.getCollections().add(newBookGenre);
+                newBookGenre.getBooks().add(newBook);
+                entityManager.merge(newBook);
+                entityManager.merge(newBookGenre);
+            }
+        }
     }
 
 }

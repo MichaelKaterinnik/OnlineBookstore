@@ -5,12 +5,16 @@ import com.onlinebookstore.domain.OrderDiscountEntity;
 import com.onlinebookstore.domain.OrderEntity;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+@Component
+@Service
 public class OrderDiscountsServiceImpl implements OrderDiscountsService {
     @Autowired
     private OrderDiscountDao orderDiscountRepository;

@@ -7,6 +7,9 @@ import com.onlinebookstore.domain.UserEntity;
 import com.onlinebookstore.models.ReviewDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +18,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+@Component
+@Service
 public class ReviewsServiceImpl implements ReviewsService {
     @Autowired
     private ReviewDao reviewsRepository;
@@ -27,13 +32,14 @@ public class ReviewsServiceImpl implements ReviewsService {
 
     // add-methods:
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void addNewReview(ReviewDTO reviewDTO) {
+    public ReviewEntity addNewReview(ReviewDTO reviewDTO) {
         ReviewEntity newReview = createReview();
         newReview.setUserId(reviewDTO.getUserId());
         newReview.setBookId(reviewDTO.getBookId());
         newReview.setComment(reviewDTO.getComment());
         newReview.setRating(reviewDTO.getRating());
         reviewsRepository.save(newReview);
+        return newReview;
     }
 
 
@@ -55,13 +61,13 @@ public class ReviewsServiceImpl implements ReviewsService {
             return optionalReview.get();
         } else throw new EntityNotFoundException();
     }
-    public List<ReviewEntity> findReviewsByUserID(Integer userID) {
+    public List<ReviewEntity> findReviewsByUserID(Integer userID, Pageable pageable) {
         return reviewsRepository.findAllByUserId(userID);
     }
     public List<ReviewEntity> findUserReviews(UserEntity user) {
         return reviewsRepository.findAllByUser(user);
     }
-    public List<ReviewEntity> findReviewsByBookId(Integer bookID) {
+    public List<ReviewEntity> findReviewsByBookId(Integer bookID, Pageable pageable) {
         return reviewsRepository.findAllByBookId(bookID);
     }
     public List<ReviewEntity> findBookReviews(BookEntity book) {

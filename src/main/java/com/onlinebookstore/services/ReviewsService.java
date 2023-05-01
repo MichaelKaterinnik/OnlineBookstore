@@ -4,25 +4,22 @@ import com.onlinebookstore.domain.BookEntity;
 import com.onlinebookstore.domain.ReviewEntity;
 import com.onlinebookstore.domain.UserEntity;
 import com.onlinebookstore.models.ReviewDTO;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-@Component
-@Service
 public interface ReviewsService {
 
-    void addNewReview(ReviewDTO reviewDTO);
+    ReviewEntity addNewReview(ReviewDTO reviewDTO);
 
     void deleteReviewById(Integer reviewID);
     void deleteReview(ReviewEntity review);
 
     ReviewEntity findReviewById(Integer reviewID);
-    List<ReviewEntity> findReviewsByUserID(Integer userID);
+    List<ReviewEntity> findReviewsByUserID(Integer userID, Pageable pageable);
     List<ReviewEntity> findUserReviews(UserEntity user);
-    List<ReviewEntity> findReviewsByBookId(Integer bookID);
+    List<ReviewEntity> findReviewsByBookId(Integer bookID, Pageable pageable);
     List<ReviewEntity> findBookReviews(BookEntity book);
 
     void updateReviewComment(Integer reviewID, String newComment);

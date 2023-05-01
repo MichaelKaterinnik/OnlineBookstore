@@ -5,12 +5,16 @@ import com.onlinebookstore.domain.UserDiscountEntity;
 import com.onlinebookstore.domain.UserEntity;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+@Component
+@Service
 public class UserDiscountsServiceImpl implements UserDiscountsService {
     @Autowired
     private UserDiscountDao userDiscountRepository;

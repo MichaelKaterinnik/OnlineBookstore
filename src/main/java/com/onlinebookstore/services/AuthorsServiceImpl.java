@@ -5,6 +5,9 @@ import com.onlinebookstore.domain.AuthorEntity;
 import com.onlinebookstore.models.AuthorDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Component
+@Service
 public class AuthorsServiceImpl implements AuthorsService {
     @Autowired
     private AuthorDao authorsRepository;
@@ -25,12 +30,13 @@ public class AuthorsServiceImpl implements AuthorsService {
 
     // add-methods:
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void addNewAuthor(AuthorDTO author) {
+    public AuthorEntity addNewAuthor(AuthorDTO author) {
         AuthorEntity newAuthor = createAuthor();
         newAuthor.setFirstName(author.getFirstName());
         newAuthor.setLastName(author.getLastName());
         newAuthor.setBio(author.getBio());
         authorsRepository.save(newAuthor);
+        return newAuthor;
     }
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void addNewAuthorForNewBook(String firstName, String lastName) {
@@ -65,16 +71,13 @@ public class AuthorsServiceImpl implements AuthorsService {
     }
 
     // get-methods:
-    public List<AuthorEntity> getAllAuthors() {
+    public List<AuthorEntity> getAllAuthors(Pageable pageable) {
         return authorsRepository.findAll();
     }
     public ArrayList<AuthorEntity> findAllOrderByLastName() {
         return (ArrayList<AuthorEntity>) authorsRepository.findAllOrderByLastNameAsc();
     }
-    public List<AuthorEntity> findAllAuthorsByLastName(String lastName) throws IllegalArgumentException {
-        if (lastName.length() < 2) {
-            throw new IllegalArgumentException();
-        }
+    public List<AuthorEntity> findAllAuthorsByLastName(String lastName, Pageable pageable) {
         return authorsRepository.findAllByLastNameContainingIgnoreCase(lastName);
     }
     public AuthorEntity findAuthorsByFirstAndLastName(String firstName, String lastName) throws EntityNotFoundException {

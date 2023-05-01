@@ -2,13 +2,9 @@ package com.onlinebookstore.services;
 
 import com.onlinebookstore.domain.DiscountEntity;
 import com.onlinebookstore.models.DiscountDTO;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
-@Component
-@Service
 public interface DiscountsService {
     DiscountEntity createDiscount();
 

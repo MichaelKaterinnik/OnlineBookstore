@@ -2,17 +2,14 @@ package com.onlinebookstore.services;
 
 import com.onlinebookstore.domain.CollectionEntity;
 import com.onlinebookstore.models.CollectionDTO;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-@Component
-@Service
 public interface CollectionsService {
     CollectionEntity createCollection();
 
-    void addNewCollection(CollectionDTO collectionDTO);
+    CollectionEntity addNewCollection(CollectionDTO collectionDTO);
     CollectionEntity addNewCollectionForNewBook(String collectionName);
 
     void updateCollectionDescription(Integer id, String description);
@@ -22,6 +19,7 @@ public interface CollectionsService {
     void deleteCollection(CollectionEntity collection);
     void deleteCollectionById(Integer id);
 
+    List<CollectionEntity> getAllCollections(Pageable pageable);
     List<CollectionEntity> getAllCollections();
     CollectionEntity findCollectionByName(String name);
     CollectionEntity findCollectionById(Integer id);

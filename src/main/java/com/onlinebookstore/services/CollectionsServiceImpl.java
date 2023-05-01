@@ -5,6 +5,9 @@ import com.onlinebookstore.domain.CollectionEntity;
 import com.onlinebookstore.models.CollectionDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Component
+@Service
 public class CollectionsServiceImpl implements CollectionsService {
     @Autowired
     private CollectionDao collectionsRepository;
@@ -24,11 +29,12 @@ public class CollectionsServiceImpl implements CollectionsService {
 
     // add-methods:
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void addNewCollection(CollectionDTO collectionDTO) {
+    public CollectionEntity addNewCollection(CollectionDTO collectionDTO) {
         CollectionEntity newCollection = createCollection();
         newCollection.setName(collectionDTO.getName());
         newCollection.setDescription(collectionDTO.getDescription());
         collectionsRepository.save(newCollection);
+        return newCollection;
     }
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public CollectionEntity addNewCollectionForNewBook(String collectionName) {
@@ -65,6 +71,9 @@ public class CollectionsServiceImpl implements CollectionsService {
 
 
     // get-methods:
+    public List<CollectionEntity> getAllCollections(Pageable pageable) {
+        return collectionsRepository.findAll();
+    }
     public List<CollectionEntity> getAllCollections() {
         return collectionsRepository.findAll();
     }

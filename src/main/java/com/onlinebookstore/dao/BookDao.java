@@ -54,6 +54,10 @@ public interface BookDao extends JpaRepository<BookEntity, Integer> {
     void updateAllBookInfo(@Param("id") Integer id, @Param("description") String description, @Param("rating") BigDecimal rating, @Param("price") BigDecimal price, @Param("quantity") Integer quantity, @Param("availability") Boolean availability, @Param("coverImage") byte[] coverImage);
 
     @Modifying
+    @Query("UPDATE BookEntity b SET b.description = :description,b.price = :price, b.quantity = :quantity, b.availability = :availability WHERE b.id = :id")
+    void updateBookDPQA(@Param("id") Integer id, @Param("description") String description, @Param("price") BigDecimal price, @Param("quantity") Integer quantity, @Param("availability") Boolean availability);
+
+    @Modifying
     @Query("UPDATE BookEntity b SET b.description = :description WHERE b.id = :id")
     void updateBookDescription(@Param("id") Integer id, @Param("description") String description);
 

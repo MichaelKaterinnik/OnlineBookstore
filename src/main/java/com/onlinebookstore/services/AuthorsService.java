@@ -2,18 +2,15 @@ package com.onlinebookstore.services;
 
 import com.onlinebookstore.domain.AuthorEntity;
 import com.onlinebookstore.models.AuthorDTO;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-@Service
 public interface AuthorsService {
     AuthorEntity createAuthor();
 
-    void addNewAuthor(AuthorDTO author);
+    AuthorEntity addNewAuthor(AuthorDTO author);
     void addNewAuthorForNewBook(String firstName, String lastName);
 
     void updateAuthorFirstAndLastName(Integer authorID, String firstName, String lastName);
@@ -23,9 +20,9 @@ public interface AuthorsService {
     void deleteAuthor(AuthorEntity author);
     void deleteAuthorById(Integer id);
 
-    List<AuthorEntity> getAllAuthors();
+    List<AuthorEntity> getAllAuthors(Pageable pageable);
     public ArrayList<AuthorEntity> findAllOrderByLastName();
-    List<AuthorEntity> findAllAuthorsByLastName(String lastName);
+    List<AuthorEntity> findAllAuthorsByLastName(String lastName, Pageable pageable);
     AuthorEntity findAuthorsByFirstAndLastName(String firstName, String lastName);
     AuthorEntity findAuthorById(Integer authorID);
 }

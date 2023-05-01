@@ -6,6 +6,8 @@ import com.onlinebookstore.domain.BookEntity;
 import com.onlinebookstore.domain.OrderItemEntity;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+@Component
+@Service
 public class BookDiscountsServiceImpl implements BookDiscountsService {
     @Autowired
     private BookDiscountDao bookDiscountsRepository;

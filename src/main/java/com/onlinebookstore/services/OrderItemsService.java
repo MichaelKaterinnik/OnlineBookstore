@@ -2,18 +2,14 @@ package com.onlinebookstore.services;
 
 import com.onlinebookstore.domain.OrderItemEntity;
 import com.onlinebookstore.models.OrderItemDTO;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Component
-@Service
 public interface OrderItemsService {
 
-    void addOrderItemToOrder(OrderItemDTO orderItemDTO, Integer orderId);
+    OrderItemEntity addOrderItemToOrder(OrderItemDTO orderItemDTO, Integer orderId);
 
-    void updateOrderPrice(Integer orderID, Integer orderItemID);
+    void updateOrderPrice(Integer orderID, OrderItemEntity orderItem);
 
     List<OrderItemEntity> getOrderItemsByOrderId(Integer orderID);
     OrderItemEntity getOrderItemById(Integer itemID);
