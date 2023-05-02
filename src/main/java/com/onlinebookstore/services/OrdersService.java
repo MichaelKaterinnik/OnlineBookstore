@@ -14,6 +14,7 @@ public interface OrdersService {
     OrderEntity addOrder(Integer userID);
 
     OrderEntity getOrderById(Integer orderID);
+    OrderEntity findWaitingOrderOfUser(Integer userID);
     List<OrderEntity> getUserOrderHistoryById(Integer userId);
     List<OrderEntity> getUserOrdersPageable(UserEntity user, Pageable pageable);
     List<OrderEntity> getUserOrders(UserEntity user);

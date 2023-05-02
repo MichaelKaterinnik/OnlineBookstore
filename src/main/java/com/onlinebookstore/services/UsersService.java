@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface UsersService {
 
-    void addNewUser(UserDTO userDTO);
+    UserEntity addNewUser(UserDTO userDTO);
 
     List<UserEntity> findAll(Pageable pageable);
     UserEntity findById(Integer id);
@@ -21,6 +21,8 @@ public interface UsersService {
     void updateUSerEmail(Integer userID, String newEmail);
     void updateUserPassword(Integer userID, String newPassword);
     void updateUser(Integer userID, String firstName, String LastName, String newPhone, String newEmail, String newPassword);
+
+    <S extends UserEntity> S save(S entity);
 
     void deleteUserById(Integer userId);
     void deleteUser(UserEntity user);

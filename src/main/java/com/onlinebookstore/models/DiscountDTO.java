@@ -3,7 +3,6 @@ package com.onlinebookstore.models;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Component
@@ -12,8 +11,8 @@ public class DiscountDTO {
     private String code;
     private String description;
     private BigDecimal discountPercentage;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private String startDate;
+    private String endDate;
 
 
     public Integer getId() {
@@ -44,19 +43,19 @@ public class DiscountDTO {
         this.discountPercentage = discountPercentage;
     }
 
-    public LocalDateTime getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 

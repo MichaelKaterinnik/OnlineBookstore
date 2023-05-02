@@ -23,7 +23,6 @@ public interface OrderDao extends JpaRepository<OrderEntity, Integer> {
 
     Optional<OrderEntity> findById(Integer id);
 
-
     @Override
     <S extends OrderEntity> S save(S entity);
 

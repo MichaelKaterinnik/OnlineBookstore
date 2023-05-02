@@ -23,8 +23,8 @@ public class OrderItemController {
     private OrdersService ordersService;
 
 
-    // GUEST, USER, ADMIN
-    @GetMapping("/get")
+    // USER, ADMIN
+    @GetMapping("/get_all")
     public ResponseEntity<List<OrderItemEntity>> getOrderItems(@RequestParam("order") Integer orderID) {
         List<OrderItemEntity> orderItems = orderItemsService.getOrderItemsByOrderId(orderID);
 
@@ -33,12 +33,16 @@ public class OrderItemController {
         return new ResponseEntity<>(orderItems, headers, HttpStatus.OK);
     }
 
-    // GUEST, USER, ADMIN
+    /**
+     * Adding a book to the user's cart (order) is implemented here. First, there is a check to see if there are any unconfirmed orders,
+     * if there are, the element is added to it, and if there is no order, it is created and the book is added there.
+     */
+    // USER, ADMIN
     @PostMapping("/add")
-    public ResponseEntity<OrderItemEntity> addNewOrderItem(@RequestParam("orderItem") OrderItemDTO orderItemDTO, @RequestParam("order") Integer orderId,  @RequestParam("user") Integer userId) {
+    public ResponseEntity<OrderItemEntity> addNewOrderItem(@RequestParam("orderItem") OrderItemDTO orderItemDTO, @RequestParam("user") Integer userId) {
         OrderEntity userOrder;
         try {
-            userOrder = ordersService.getOrderById(orderId);
+            userOrder = ordersService.findWaitingOrderOfUser(userId);
         } catch (EntityNotFoundException e) {
             userOrder = ordersService.addOrder(userId);
         }
@@ -46,6 +50,7 @@ public class OrderItemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderItem);
     }
 
+    // USER, ADMIN
     @PostMapping("/remove")
     public ResponseEntity.BodyBuilder removeOrderItem(@PathVariable OrderItemEntity orderItem) {
         orderItemsService.deleteOrderItem(orderItem);

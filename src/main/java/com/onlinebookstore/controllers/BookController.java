@@ -126,37 +126,37 @@ public class BookController {
         booksService.updateBookInfo(bookID, bookDTO.getDescription(), bookDTO.getRating(), bookDTO.getPrice(), bookDTO.getQuantity(), bookDTO.getAvailability(), bookDTO.getCoverImage());
         return ResponseEntity.ok().body("Інформацію оновлено!");
     }
-    @PutMapping("/updateDPKA")
+    @PutMapping("/update/dpka")
     public ResponseEntity<Object> updateBookDPQA(@RequestBody BookDTO bookDTO, @PathVariable Integer bookID) {
         booksService.updateBookDPQA(bookID, bookDTO.getDescription(), bookDTO.getRating(), bookDTO.getQuantity(), bookDTO.getAvailability());
         return ResponseEntity.ok().body("Інформацію оновлено!");
     }
-    @PutMapping("/update_description")
+    @PutMapping("/update/description")
     public ResponseEntity<Object> updateBookDescription(@RequestBody String description, @PathVariable Integer bookID) {
         booksService.updateBookDescription(bookID, description);
         return ResponseEntity.ok().body("Опис книги оновлено!");
     }
-    @PutMapping("/update_rating")
+    @PutMapping("/update/rating")
     public ResponseEntity.BodyBuilder updateBookRating(@RequestBody Double newRating, @PathVariable Integer bookID) {
         booksService.updateBookRating(bookID, newRating);
         return ResponseEntity.ok();
     }
-    @PutMapping("/update_price")
+    @PutMapping("/update/price")
     public ResponseEntity<Object> updateBookPrice(@RequestBody BigDecimal newPrice, @PathVariable Integer bookID) {
         booksService.updateBookPrice(bookID, newPrice);
         return ResponseEntity.ok().body("Вартість книги оновлено!");
     }
-    @PutMapping("/update_quantity")
+    @PutMapping("/update/quantity")
     public ResponseEntity<Object> updateBookQuantity(@RequestBody Integer newQuantity, @PathVariable Integer bookID) {
         booksService.updateBookQuantity(bookID, newQuantity);
         return ResponseEntity.ok().body("Кількість доступних екземплярів книги оновлено!");
     }
-    @PutMapping("/update_availability")
+    @PutMapping("/update/availability")
     public ResponseEntity.BodyBuilder updateBookAvailability(@RequestBody Boolean availability, @PathVariable Integer bookID) {
         booksService.updateBookAvailability(bookID, availability);
         return ResponseEntity.ok();
     }
-    @PutMapping("/update_cover")
+    @PutMapping("/update/cover")
     public ResponseEntity<Object> updateBookCover(@RequestBody byte[] newCover, @PathVariable Integer bookID) {
         booksService.updateBookCover(bookID, newCover);
         return ResponseEntity.ok().body("Обкладинку книги оновлено!");

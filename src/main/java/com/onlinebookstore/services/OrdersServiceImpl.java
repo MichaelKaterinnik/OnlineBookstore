@@ -62,6 +62,15 @@ public class OrdersServiceImpl implements OrdersService {
             return optionalOrder.get();
         } else throw new EntityNotFoundException();
     }
+    public OrderEntity findWaitingOrderOfUser(Integer userID) throws EntityNotFoundException {
+        List<OrderEntity> userOrders = orderRepository.findAllByUserId(userID);
+        for (OrderEntity order : userOrders) {
+            if (order.getStatus() == WAITING) {
+                return order;
+            }
+        }
+        throw new EntityNotFoundException();
+    }
     public List<OrderEntity> getUserOrderHistoryById(Integer userId) {
         return orderRepository.findAllByUserId(userId);
     }

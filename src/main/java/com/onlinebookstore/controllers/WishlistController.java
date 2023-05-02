@@ -99,7 +99,7 @@ public class WishlistController {
         return ResponseEntity.badRequest().build();
     }
 
-    // ADMIN
+    // USER, ADMIN
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Object> deleteWishlistById(@PathVariable Integer wishlistID) {
         wishlistsService.deleteWishlistById(wishlistID);

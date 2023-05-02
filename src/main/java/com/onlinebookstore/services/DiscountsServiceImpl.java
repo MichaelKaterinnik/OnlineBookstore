@@ -5,6 +5,7 @@ import com.onlinebookstore.domain.DiscountEntity;
 import com.onlinebookstore.models.DiscountDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -36,8 +38,8 @@ public class DiscountsServiceImpl implements DiscountsService {
         newDiscount.setCode(discountDTO.getCode());
         newDiscount.setDescription(discountDTO.getDescription());
         newDiscount.setDiscountPercentage(discountDTO.getDiscountPercentage());
-        newDiscount.setStartDate(discountDTO.getStartDate());
-        newDiscount.setEndDate(discountDTO.getEndDate());
+        newDiscount.setStartDate(LocalDateTime.parse(discountDTO.getStartDate(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
+        newDiscount.setEndDate(LocalDateTime.parse(discountDTO.getEndDate(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
         discountsRepository.save(newDiscount);
         return newDiscount;
     }
@@ -65,6 +67,15 @@ public class DiscountsServiceImpl implements DiscountsService {
         if (optionalDiscount.isPresent()) {
             return optionalDiscount.get();
         } else throw new EntityNotFoundException();
+    }
+    public List<DiscountEntity> findAllOrderedByExpiredDateDesc(Pageable pageable) {
+        return discountsRepository.findAllOrderedByExpiredDateDesc();
+    }
+    public List<DiscountEntity> findAllExpiredDiscounts(Pageable pageable) {
+        return discountsRepository.findExpiredDiscountsOrderedByExpiredDateDesc();
+    }
+    public List<DiscountEntity> findAllNonExpiredDiscounts(Pageable pageable) {
+        return discountsRepository.findActiveDiscountsOrderedByExpiredDateDesc();
     }
 
 

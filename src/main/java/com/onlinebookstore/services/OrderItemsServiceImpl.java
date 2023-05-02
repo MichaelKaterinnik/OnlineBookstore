@@ -36,9 +36,6 @@ public class OrderItemsServiceImpl implements OrderItemsService {
 
 
     // add-methods:
-    /**
-     * PLEASE NOTE that you must check the WAITING order status in controller before adding a new book to it
-     */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public OrderItemEntity addOrderItemToOrder(OrderItemDTO orderItemDTO, Integer orderId) throws EntityNotFoundException, BookIsNotAvailableException, IllegalArgumentException {
         BookEntity orderedBook = booksService.findBookByID(orderItemDTO.getBookId());
@@ -51,12 +48,12 @@ public class OrderItemsServiceImpl implements OrderItemsService {
         newOrderItem.setQuantity(orderItemDTO.getQuantity());
         newOrderItem.setOrderId(orderId);
 
-        // перевірка книги на наявність знижки і необхідність відповдіного корегування ціни
+        // checking discounted book price availability
         if (bookDiscountsService.ifBookIsDiscounted(orderedBook.getId())) {
             bookDiscountsService.applyBookDiscountWhenOrdering(newOrderItem, orderedBook);
         }
 
-        // зміна кількості доступних екземплярів книги при замовленні
+        // miltiplying book price according to required quantity
         Integer quantity = orderItemDTO.getQuantity();
         if (quantity > orderedBook.getQuantity()) {
             throw new IllegalArgumentException("Кількість екземплярів, що бажається замовити, перевищує наявну кількість книг на складі.");
@@ -67,7 +64,7 @@ public class OrderItemsServiceImpl implements OrderItemsService {
             orderedBook.setAvailability(false);
         }
 
-        // онолвення загальної вартості замовлення
+        // updating sum order price and returning to "Add new Item" controller method
         orderItemRepository.save(newOrderItem);
         updateOrderPrice(orderId, newOrderItem);
         return newOrderItem;

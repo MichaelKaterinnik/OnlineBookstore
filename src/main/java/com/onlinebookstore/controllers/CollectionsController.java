@@ -59,12 +59,12 @@ public class CollectionsController {
         collectionsService.updateCollection(collectionID, collectionDTO.getName(), collectionDTO.getDescription());
         return ResponseEntity.ok().body("Інформацію про категорію книг оновлено!");
     }
-    @PutMapping("/update_name")
+    @PutMapping("/update/name")
     public ResponseEntity<Object> updateCollectionName(@RequestBody CollectionDTO collectionDTO, @PathVariable Integer collectionID) {
         collectionsService.updateCollectionName(collectionID, collectionDTO.getName());
         return ResponseEntity.ok().body("Інформацію про категорію книг оновлено!");
     }
-    @PutMapping("/update_description")
+    @PutMapping("/update/description")
     public ResponseEntity<Object> updateCollectionDescription(@RequestBody CollectionDTO collectionDTO, @PathVariable Integer collectionID) {
         collectionsService.updateCollectionDescription(collectionID, collectionDTO.getDescription());
         return ResponseEntity.ok().body("Інформацію про категорію книг оновлено!");

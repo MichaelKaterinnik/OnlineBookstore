@@ -20,8 +20,17 @@ public interface DiscountDao extends JpaRepository<DiscountEntity, Integer> {
     @Override
     List<DiscountEntity> findAll();
 
+    @Query("SELECT d FROM DiscountEntity d ORDER BY d.endDate DESC")
+    List<DiscountEntity> findAllOrderedByExpiredDateDesc();
+    @Query("SELECT d FROM DiscountEntity d WHERE d.endDate < CURRENT_TIMESTAMP ORDER BY d.endDate DESC")
+    List<DiscountEntity> findExpiredDiscountsOrderedByExpiredDateDesc();
+    @Query("SELECT d FROM DiscountEntity d WHERE d.endDate >= CURRENT_TIMESTAMP ORDER BY d.endDate DESC")
+    List<DiscountEntity> findActiveDiscountsOrderedByExpiredDateDesc();
+
+
     Optional<DiscountEntity> findById(Integer id);
     Optional<DiscountEntity> findByCodeContainingIgnoreCase(String code);
+
 
 
 

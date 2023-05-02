@@ -51,7 +51,7 @@ public class AuthorController {
     }
 
 
-    // ADMIN
+    // GUEST, USER, ADMIN
     @GetMapping("/books_of_author")
     public ResponseEntity<List<BookEntity>> getBooksByAuthorId(Integer authorID, @RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "30") int size) {
@@ -89,12 +89,12 @@ public class AuthorController {
         authorsService.updateAuthor(authorID, authorDTO.getFirstName(), authorDTO.getLastName(), authorDTO.getBio());
         return ResponseEntity.ok().body("Інформацію оновлено!");
     }
-    @PutMapping("/update_bio")
+    @PutMapping("/update/bio")
     public ResponseEntity<Object> updateAuthorBio(@RequestBody AuthorDTO authorDTO, @PathVariable Integer authorID) {
         authorsService.updateAuthorBio(authorID, authorDTO.getBio());
         return ResponseEntity.ok().body("Інформацію оновлено!");
     }
-    @PutMapping("/update_names")
+    @PutMapping("/update/names")
     public ResponseEntity<Object> updateAuthorName(@RequestBody AuthorDTO authorDTO, @PathVariable Integer authorID) {
         authorsService.updateAuthorFirstAndLastName(authorID, authorDTO.getFirstName(), authorDTO.getLastName());
         return ResponseEntity.ok().body("Інформацію оновлено!");

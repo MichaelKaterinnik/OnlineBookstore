@@ -27,32 +27,14 @@ public class OrderController {
     private OrderItemsService orderItemsService;
 
 
-    // GUEST, USER, ADMIN
-    @PostMapping("/add")
-    public ResponseEntity<OrderEntity> createUserOrder(@RequestBody Integer userID) {
-        OrderEntity createdOrder = ordersService.addOrder(userID);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
-    }
 
-    // GUEST, USER, ADMIN
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Object> deleteOrder(@PathVariable Integer orderID) {
-        ordersService.deleteOrderById(orderID);
-        return ResponseEntity.ok().body("Замовлення №" + orderID + " було успішно видалене.");
-    }
-
-    // GUEST, USER, ADMIN
+    // USER, ADMIN
     @GetMapping("/user_order")
     public ResponseEntity<OrderEntity> getUserBasket(@RequestParam("user") UserEntity user) {
         OrderEntity unconfirmedUserOrder = null;
-        List<OrderEntity> userOrdersHistory = ordersService.getUserOrders(user);
-        for (OrderEntity order : userOrdersHistory) {
-            if (order.getStatus() == OrderEntity.OrderStatus.WAITING)
-                unconfirmedUserOrder = order;
-            break;
-        }
-
-        if (unconfirmedUserOrder == null) {
+        try {
+            unconfirmedUserOrder = ordersService.findWaitingOrderOfUser(user.getId());
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
 
@@ -62,27 +44,16 @@ public class OrderController {
     }
 
     // USER, ADMIN
-    @GetMapping("/user_history")
-    public ResponseEntity<List<OrderEntity>> getUserOrdersPageable(@RequestParam("user") UserEntity user,
-                                                           @RequestParam(defaultValue = "0") int page,
-                                                           @RequestParam(defaultValue = "20") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        List<OrderEntity> userOrdersHistory = ordersService.getUserOrdersPageable(user, pageable);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(userOrdersHistory, headers, HttpStatus.OK);
-    }
-
-
     @PutMapping("/confirm")
     public ResponseEntity<PaymentResponse> confirmOrder(@RequestParam("order") OrderEntity order, @RequestParam("user") UserEntity user, @RequestParam("promo") String promoCode) {
+        // finding user discount to apply to order price
         try {
             ordersService.applyUserDiscountToOrder(order, user.getId());
         } catch (DiscountCannotBeAppliedToThisOrder e) {
             throw new RuntimeException(e);
         }
 
+        // finding order discount (promocode) to apply to order price
         try {
             ordersService.applyPromoCode(order, promoCode);
         } catch (EntityNotFoundException e) {
@@ -94,8 +65,38 @@ public class OrderController {
         // payment
         PaymentResponse response = new PaymentResponse(order.getTotalPrice());
 
+        // confirmation
         ordersService.updateOrderStatus(order.getId(), OrderEntity.OrderStatus.PROCESSING);
         return ResponseEntity.ok().body(response);
+    }
+
+    // USER, ADMIN
+    @GetMapping("/user_history")
+    public ResponseEntity<List<OrderEntity>> getUserOrdersPageable(@RequestParam("user") UserEntity user,
+                                                                   @RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<OrderEntity> userOrdersHistory = ordersService.getUserOrdersPageable(user, pageable);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(userOrdersHistory, headers, HttpStatus.OK);
+    }
+
+
+
+    // ADMIN
+    @PostMapping("/add")
+    public ResponseEntity<OrderEntity> createUserOrder(@RequestBody Integer userID) {
+        OrderEntity createdOrder = ordersService.addOrder(userID);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+    }
+
+    // ADMIN
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity.BodyBuilder deleteOrder(@PathVariable Integer orderID) {
+        ordersService.deleteOrderById(orderID);
+        return ResponseEntity.ok();
     }
 
 

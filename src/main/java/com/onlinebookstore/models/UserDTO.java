@@ -13,6 +13,7 @@ public class UserDTO {
     private String phone;
     private String email;
     private String password;
+    private String role;
     private Timestamp createTime;
 
 
@@ -72,6 +73,14 @@ public class UserDTO {
         this.createTime = createTime;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -85,4 +94,5 @@ public class UserDTO {
     public int hashCode() {
         return Objects.hash(id, firstName, lastName, phone, email, password, createTime);
     }
+
 }

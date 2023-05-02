@@ -29,14 +29,21 @@ public class UsersServiceImpl implements UsersService {
 
     // add-methods:
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void addNewUser(UserDTO userDTO) {
+    public UserEntity addNewUser(UserDTO userDTO) {
         UserEntity newUser = createUser();
         newUser.setFirstName(userDTO.getFirstName());
         newUser.setLastName(userDTO.getLastName());
         newUser.setPhone(userDTO.getPhone());
         newUser.setEmail(userDTO.getEmail());
         newUser.setPassword(userDTO.getPassword());
+
+        if (userDTO.getRole().equalsIgnoreCase("ADMIN")) {
+            newUser.setRole(UserEntity.Role.ADMIN);
+        } else
+            newUser.setRole(UserEntity.Role.USER);
+
         usersRepository.save(newUser);
+        return newUser;
     }
 
 
@@ -86,6 +93,10 @@ public class UsersServiceImpl implements UsersService {
         usersRepository.updateUserInfo(userID, firstName, LastName, newPhone, newEmail, newPassword);
     }
 
+
+    public <S extends UserEntity> S save(S entity) {
+        return usersRepository.save(entity);
+    }
 
     // delete-methods:
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

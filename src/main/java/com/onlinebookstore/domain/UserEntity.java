@@ -35,8 +35,17 @@ public class UserEntity {
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z]).{8,12}$", message = "Пароль повинен містити від 8 до 12 символів латиницею та мінімум 1 числовий символ")
     private String password;
     @Basic
+    @Column(name = "role")
+    private Role role;
+    @Basic
     @Column(name = "create_time")
     private Timestamp createTime;
+
+
+    public enum Role {
+        USER,
+        ADMIN
+    }
 
 
     public Integer getId() {
@@ -93,6 +102,14 @@ public class UserEntity {
 
     public void setCreateTime(Timestamp createTime) {
         this.createTime = createTime;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     @Override

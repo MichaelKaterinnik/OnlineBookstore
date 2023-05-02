@@ -1,6 +1,7 @@
 package com.onlinebookstore.controllers;
 
 import com.onlinebookstore.domain.*;
+import com.onlinebookstore.models.UserDTO;
 import com.onlinebookstore.services.OrdersService;
 import com.onlinebookstore.services.ReviewsService;
 import com.onlinebookstore.services.UsersService;
@@ -8,11 +9,9 @@ import com.onlinebookstore.services.WishlistsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,21 +28,6 @@ public class UserController {
     private OrdersService ordersService;
     @Autowired
     private ReviewsService reviewsService;
-
-
-    // implement after security configure
-//    @PostMapping("/login")
-//    public ResponseEntity<?> authenticateUser(@RequestBody LoginForm loginRequest) {
-//        Authentication authentication = authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-//
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//        String jwt = jwtProvider.generateJwtToken(authentication);
-//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-//
-//        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getUsername(), userDetails.getAuthorities()));
-//    }
 
 
     // USER, ADMIN
@@ -85,6 +69,23 @@ public class UserController {
         List<UserEntity> users = usersService.findAll(pageable);
 
         return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<UserEntity> forceAddingUser(@RequestBody UserDTO userDTO) {
+        UserEntity createdUser = usersService.addNewUser(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Object> deleteUserById(@PathVariable Integer userID) {
+        usersService.deleteUserById(userID);
+        return ResponseEntity.ok().body("Користувач був успішно видалений!");
+    }
+    @DeleteMapping("/delete")
+    public ResponseEntity<Object> deleteUser(@PathVariable UserEntity user) {
+        usersService.deleteUser(user);
+        return ResponseEntity.ok().body("Користувач був успішно видалений!");
     }
 
 }
