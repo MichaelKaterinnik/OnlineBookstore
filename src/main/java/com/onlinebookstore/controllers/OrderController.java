@@ -17,6 +17,15 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Реалізація управління замовленнями. Зареєстровані користувачі можуть переходити у кошик покупок ("/order/user_order"),
+ * пререглядати історію замовлень ("/order/user_history").
+ *
+ * Також реалізований метод підтвердження замовлення (покупки) - /order/confirm"
+ *
+ * Методи адміністратора: може окремо додавати або видаляти замовлення за його id із бази даних, у разі потреби.
+ */
+
 @RestController
 @RequestMapping("/order")
 public class OrderController {

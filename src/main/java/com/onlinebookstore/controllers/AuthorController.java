@@ -18,6 +18,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * У даному класи реалізовані шляхи запитів на: отримання списку наявних авторів ("/authors/get_all"), пошуку автора за
+ * його іменем ("/authors/get/{name}"), пошуку книг певного автора за id - застосовується при перегляді списку авторів користувачем
+ * ("/authors/books_of_author").
+ * <p>
+ * Вони доступні для всіх користувачів.
+ * <p>
+ * Також є методи для додавання/редагування та видалення інформації про авторів книг із бази даних - вони доступні лише для користувачів
+ * зі статусом адміністратора ("/authors/add", "/authors/delete/**", "/authors/update/**")
+ */
 @RestController
 @RequestMapping("/authors")
 public class AuthorController {

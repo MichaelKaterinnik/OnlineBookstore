@@ -15,6 +15,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Реалізація методів реєстрації/авторизації, до яких ведуть шляхи класу JwtController.
+ */
+
 @Service
 public class AuthentificationService {
     @Autowired
@@ -32,7 +36,10 @@ public class AuthentificationService {
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(registerRequest.getEmail());
         userEntity.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        userEntity.setRole(UserEntity.Role.USER);
+        userEntity.setRole(registerRequest.getRole());
+        userEntity.setFirstName(registerRequest.getFirstName());
+        userEntity.setLastName(registerRequest.getLastName());
+        userEntity.setPhone(registerRequest.getPhone());
 
         CustomUserDetails customUserDetails = new CustomUserDetails(usersService.save(userEntity));
 

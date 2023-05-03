@@ -15,6 +15,10 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Клас, який реалізує пошук користувача при його авторизації та визначення його ролі.
+ */
+
 @Component
 @Service
 public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {

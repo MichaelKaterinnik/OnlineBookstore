@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Клас, який реалізує присвоєення ролей (прав) при авторизації/реєстрації користувачів.
+ */
+
 public class CustomUserDetails implements UserDetails {
 
     private final UserEntity user;

@@ -17,6 +17,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Основний метод (шялх) класу - це додавання книги до замовлення ("/order/items/add"). Під час виконання цього методу до загальної ціни замовлення
+ * автоматично застосовується знижка на книгу.
+ * <p>
+ * Також є метод дл яотримання інформації про всі елементи конкретного замовлення ("/order/items/get_all"), що може використовуватись для
+ * відображення коризни покупок. Метод за адресою "/order/items/remove" має видаляти елемент замовлення із корзини.
+ */
+
 @RestController
 @RequestMapping("/order/items")
 public class OrderItemController {

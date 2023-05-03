@@ -18,6 +18,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Реалізація управління Security Chain поведінкою додатку. Фільтрація запитів, які доступні всім, а які - лише
+ * зареєстрованим користувачам або адміністраторам додатку.
+ */
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity

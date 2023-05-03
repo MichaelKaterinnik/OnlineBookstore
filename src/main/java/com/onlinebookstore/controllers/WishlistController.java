@@ -16,6 +16,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Клас управління списками бажаних книг ("/user_wishlist").
+ * Доступний зареєстрованим користувачам та адміністраторам.
+ * Реалізовані методи для додавання книги у вішліст, видалення книги з вішлісту, отримання переліку книг вішліста
+ * ("/user_wishlist/wishlist_books").
+ */
+
 @RestController
 @RequestMapping("/user_wishlist")
 public class WishlistController {

@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Реалізація реєстрації та авторизації зареєстрованих користувачів.
+ */
+
 @RestController
 @RequestMapping("/")
 public class JwtController {

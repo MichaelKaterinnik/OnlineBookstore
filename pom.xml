@@ -85,6 +85,7 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- for establishing database connection -->
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
@@ -130,6 +131,7 @@
             <version>2.20.0</version>
         </dependency>
 
+        <!-- In use when controller sends response objects based on Entites -->
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>

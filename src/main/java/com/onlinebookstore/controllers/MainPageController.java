@@ -13,6 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Реалізація головної сторінки додатку - має виводитись перелік категорій книг та добірка книг за популярністю (вираховується на основі
+ * кількості додавання до замовлень та додавання до вішлістів).
+ */
+
 @RestController
 @RequestMapping("/")
 public class MainPageController {
