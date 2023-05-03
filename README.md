@@ -25,7 +25,7 @@ https://github.com/MichaelKaterinnik/OnlineBookstoreFrontend/tree/master
 * HikariCP
 * Maven
 
-## Функціональність
+## Functionality
 
 In the current version, when interacting with the application, it is possible to register and save information about books, writers, book collections according to certain parameters. You can rate books and leave reviews on them, but for this you need to have the status of a registered user. A registered user can also add books to the wish list.
 
