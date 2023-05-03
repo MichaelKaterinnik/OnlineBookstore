@@ -1,8 +1,10 @@
 package com.onlinebookstore.controllers;
 
+import com.onlinebookstore.config.GlobalExceptionHandler;
 import com.onlinebookstore.domain.DiscountEntity;
 import com.onlinebookstore.models.DiscountDTO;
 import com.onlinebookstore.services.DiscountsService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,41 +22,48 @@ import java.util.List;
 public class DiscountController {
     @Autowired
     private DiscountsService discountsService;
+    @Autowired
+    private GlobalExceptionHandler exceptionHandler;
 
     // ADMIN
     @GetMapping("/get/all")
-    public ResponseEntity<List<DiscountEntity>> getAllDiscounts(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<List<DiscountDTO>> getAllDiscounts(@RequestParam(defaultValue = "0") int page,
                                                                          @RequestParam(defaultValue = "40") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<DiscountEntity> discountList = discountsService.findAllOrderedByExpiredDateDesc(pageable);
+        List<DiscountDTO> discountList = discountsService.getAllOrderedByExpiredDateDescDTO(pageable);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(discountList, headers, HttpStatus.OK);
     }
     @GetMapping("/get/all/non_expired")
-    public ResponseEntity<List<DiscountEntity>> getAllAvailableDiscounts(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<List<DiscountDTO>> getAllAvailableDiscounts(@RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "40") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<DiscountEntity> discountList = discountsService.findAllNonExpiredDiscounts(pageable);
+        List<DiscountDTO> discountList = discountsService.getAllNonExpiredDiscountsDTO(pageable);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(discountList, headers, HttpStatus.OK);
     }
     @GetMapping("/get/all/expired")
-    public ResponseEntity<List<DiscountEntity>> getAllExpiredDiscounts(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<List<DiscountDTO>> getAllExpiredDiscounts(@RequestParam(defaultValue = "0") int page,
                                                                          @RequestParam(defaultValue = "40") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<DiscountEntity> discountList = discountsService.findAllExpiredDiscounts(pageable);
+        List<DiscountDTO> discountList = discountsService.getAllExpiredDiscountsDTO(pageable);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(discountList, headers, HttpStatus.OK);
     }
     @GetMapping("/get/{id}")
-    public ResponseEntity<DiscountEntity> getAuthorsByLastName(@PathVariable Integer discountID) {
-        DiscountEntity discount = discountsService.findDiscountById(discountID);
+    public ResponseEntity<DiscountDTO> getDiscountById(@PathVariable Integer discountID) {
+        DiscountDTO discount = null;
+        try {
+            discount = discountsService.getDiscountDTOById(discountID);
+        } catch (EntityNotFoundException e) {
+            exceptionHandler.entityNotFoundException(e);
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

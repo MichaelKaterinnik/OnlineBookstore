@@ -1,7 +1,9 @@
 package com.onlinebookstore.controllers;
 
+import com.onlinebookstore.config.GlobalExceptionHandler;
 import com.onlinebookstore.domain.CollectionEntity;
 import com.onlinebookstore.models.CollectionDTO;
+import com.onlinebookstore.services.CollectionBooksService;
 import com.onlinebookstore.services.CollectionsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -19,14 +21,18 @@ import java.util.List;
 public class CollectionsController {
     @Autowired
     private CollectionsService collectionsService;
+    @Autowired
+    private CollectionBooksService collectionBooksService;
+    @Autowired
+    private GlobalExceptionHandler exceptionHandler;
 
 
     // GUEST, USER, ADMIN
     @GetMapping("/get_all")
-    public ResponseEntity<List<CollectionEntity>> getBookCollections(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<List<CollectionDTO>> getBookCollections(@RequestParam(defaultValue = "0") int page,
                                                              @RequestParam(defaultValue = "30") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<CollectionEntity> collectionsList = collectionsService.getAllCollections(pageable);
+        List<CollectionDTO> collectionsList = collectionsService.getAllCollectionsDTO(pageable);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -39,6 +45,28 @@ public class CollectionsController {
     public ResponseEntity<CollectionEntity> addCollection(@RequestBody CollectionDTO collectionDTO) {
         CollectionEntity createdCollection = collectionsService.addNewCollection(collectionDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCollection);
+    }
+
+    // ADMIN
+    @PostMapping("/books/add")
+    public ResponseEntity<String> addBookToCollection(@RequestBody Integer collectionID,
+                                                      @RequestBody Integer bookID) {
+        try {
+            collectionBooksService.addBookInCollection(collectionID, bookID);
+        } catch (RuntimeException e) {
+            exceptionHandler.runtimeException(e);
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body("Книгу додано до колекції!");
+    }
+    @DeleteMapping("/books/delete")
+    public ResponseEntity<Object> deleteCollectionById(@RequestBody Integer collectionID,
+                                                       @RequestBody Integer bookID) {
+        try {
+            collectionBooksService.removeBookFromCollection(collectionID, bookID);
+        } catch (RuntimeException e) {
+            exceptionHandler.runtimeException(e);
+        }
+        return ResponseEntity.ok().body("Книгу видалено з колекції!");
     }
 
     // ADMIN

@@ -12,6 +12,8 @@ public interface OrderItemsService {
     void updateOrderPrice(Integer orderID, OrderItemEntity orderItem);
 
     List<OrderItemEntity> getOrderItemsByOrderId(Integer orderID);
+    List<OrderItemDTO> getOrderItemsDTOByOrderId(Integer orderID);
+
     OrderItemEntity getOrderItemById(Integer itemID);
 
     void deleteOrderItemByID(Integer orderItemID);

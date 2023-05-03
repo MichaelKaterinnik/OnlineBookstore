@@ -4,6 +4,7 @@ import com.onlinebookstore.dao.DiscountDao;
 import com.onlinebookstore.domain.DiscountEntity;
 import com.onlinebookstore.models.DiscountDTO;
 import jakarta.persistence.EntityNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -18,12 +19,15 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Service
 public class DiscountsServiceImpl implements DiscountsService {
     @Autowired
     private DiscountDao discountsRepository;
+
+    private ModelMapper modelMapper;
 
 
     public DiscountEntity createDiscount() {
@@ -62,20 +66,53 @@ public class DiscountsServiceImpl implements DiscountsService {
             return optionalDiscount.get();
         } else throw new EntityNotFoundException();
     }
-    public DiscountEntity findDiscountByCode(String discountCode) throws EntityNotFoundException {
-        Optional<DiscountEntity> optionalDiscount = discountsRepository.findByCodeContainingIgnoreCase(discountCode);
+    public DiscountDTO getDiscountDTOById(Integer discountID) {
+        Optional<DiscountEntity> optionalDiscount = discountsRepository.findById(discountID);
         if (optionalDiscount.isPresent()) {
-            return optionalDiscount.get();
+            DiscountEntity discount = optionalDiscount.get();
+            DiscountDTO discountDTO = new DiscountDTO();
+            discountDTO.setId(discount.getId());
+            discountDTO.setDescription(discount.getDescription());
+            discountDTO.setCode(discount.getCode());
+            discountDTO.setDiscountPercentage(discount.getDiscountPercentage());
+            discountDTO.setStartDate(String.valueOf(discount.getStartDate()));
+            discountDTO.setEndDate(String.valueOf(discount.getEndDate()));
+            return discountDTO;
         } else throw new EntityNotFoundException();
+    }
+
+    public DiscountEntity findDiscountByCode(String discountCode) {
+        Optional<DiscountEntity> optionalDiscount = discountsRepository.findByCodeContainingIgnoreCase(discountCode);
+        return optionalDiscount.orElse(null);
     }
     public List<DiscountEntity> findAllOrderedByExpiredDateDesc(Pageable pageable) {
         return discountsRepository.findAllOrderedByExpiredDateDesc();
     }
+    public List<DiscountDTO> getAllOrderedByExpiredDateDescDTO(Pageable pageable) {
+        List<DiscountEntity> collectionEntities = discountsRepository.findAllOrderedByExpiredDateDesc();
+        return collectionEntities.stream()
+                .map(discountEntity -> modelMapper.map(discountEntity, DiscountDTO.class))
+                .collect(Collectors.toList());
+    }
+
     public List<DiscountEntity> findAllExpiredDiscounts(Pageable pageable) {
         return discountsRepository.findExpiredDiscountsOrderedByExpiredDateDesc();
     }
+    public List<DiscountDTO> getAllExpiredDiscountsDTO(Pageable pageable) {
+        List<DiscountEntity> collectionEntities = discountsRepository.findExpiredDiscountsOrderedByExpiredDateDesc();
+        return collectionEntities.stream()
+                .map(discountEntity -> modelMapper.map(discountEntity, DiscountDTO.class))
+                .collect(Collectors.toList());
+    }
+
     public List<DiscountEntity> findAllNonExpiredDiscounts(Pageable pageable) {
         return discountsRepository.findActiveDiscountsOrderedByExpiredDateDesc();
+    }
+    public List<DiscountDTO> getAllNonExpiredDiscountsDTO(Pageable pageable) {
+        List<DiscountEntity> collectionEntities = discountsRepository.findActiveDiscountsOrderedByExpiredDateDesc();
+        return collectionEntities.stream()
+                .map(discountEntity -> modelMapper.map(discountEntity, DiscountDTO.class))
+                .collect(Collectors.toList());
     }
 
 

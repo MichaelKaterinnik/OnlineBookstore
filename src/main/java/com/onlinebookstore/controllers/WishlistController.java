@@ -38,11 +38,14 @@ public class WishlistController {
 
     // USER, ADMIN
     @PostMapping("/add_book")
-    public ResponseEntity<WishlistBookEntity> addBookToWishlist(@RequestBody Integer userID, Integer bookID) {
+    public ResponseEntity<?> addBookToWishlist(@RequestBody Integer userID, Integer bookID) {
         BookEntity wishlistedBook = booksService.findBookByID(bookID);
         UserEntity user = usersService.findById(userID);
 
         WishlistEntity userWishlist = wishlistsService.findWishlistByUserId(userID);
+        if (userWishlist == null) {
+            wishlistsService.createNewWishlist(userID);
+        }
         WishlistBookEntity newWishlistBook = wishlistsService.addBookToWishlist(userWishlist.getId(), bookID);
 
         System.out.println("Книгу " + wishlistedBook.getTitle() + " додано до списку бажань користувача " + user.getFirstName() + " " + user.getLastName());
@@ -52,8 +55,11 @@ public class WishlistController {
 
     // USER, ADMIN
     @GetMapping("/{id}")
-    public ResponseEntity<WishlistEntity> getUserWishlistByUserId(@PathVariable Integer userID) {
+    public ResponseEntity<?> getUserWishlistByUserId(@PathVariable Integer userID) {
         WishlistEntity userWishlist = wishlistsService.findWishlistByUserId(userID);
+        if (userWishlist == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Список бажань користувача з ID " + userID + " не знайдено");
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

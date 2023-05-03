@@ -68,7 +68,8 @@ public class CollectionBooksServiceImpl implements CollectionBooksService {
             entityManager.merge(book);
 
             collectionBookRepository.removeBookFromGenreCollection(collectionID, bookID);
-        }
+        } else
+            throw new RuntimeException();
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -82,7 +83,7 @@ public class CollectionBooksServiceImpl implements CollectionBooksService {
         CollectionEntity newBookGenre;
         for (String genre : book.getGenres()) {
             CollectionEntity thisBookGenre = collectionsService.findCollectionByName(genre);
-            if (genre != null) {
+            if (thisBookGenre != null) {
                 setCollectionForNewBook(thisBookGenre.getId(), newBook.getId());
                 newBook.getCollections().add(thisBookGenre);
                 thisBookGenre.getBooks().add(newBook);

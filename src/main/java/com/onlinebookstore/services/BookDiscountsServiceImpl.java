@@ -54,9 +54,7 @@ public class BookDiscountsServiceImpl implements BookDiscountsService {
     }
     public BookDiscountEntity findBookDiscountByBookId(Integer bookID) throws EntityNotFoundException {
         Optional<BookDiscountEntity> optionalBookDiscount = bookDiscountsRepository.findByBookId(bookID);
-        if (optionalBookDiscount.isPresent()) {
-            return optionalBookDiscount.get();
-        } else throw new EntityNotFoundException();
+        return optionalBookDiscount.orElse(null);
     }
 
     // update-methods:
@@ -77,23 +75,29 @@ public class BookDiscountsServiceImpl implements BookDiscountsService {
      * or when adding a book to the cart by using the check method ifBookIsDiscounted(Integer bookID) and
      * applyBookDiscountWhenOrdering(OrderItemEntity newOrderItem, BookEntity orderingBook)
      */
-    public void applyDiscountToBook(Integer bookID) {
+    public void applyDiscountToBook(Integer bookID) throws EntityNotFoundException {
         booksService.findBookByID(bookID).setPrice(getBookDiscountedPrice(bookID));
     }
-    public BigDecimal getBookDiscountedPrice(Integer bookID) {
+    public BigDecimal getBookDiscountedPrice(Integer bookID) throws EntityNotFoundException {
         BookDiscountEntity bookDiscount = findBookDiscountByBookId(bookID);
-        BigDecimal discountPercentage = discountsServices.findDiscountById(bookDiscount.getDiscountId()).getDiscountPercentage();
-        BookEntity discountedBook = booksService.findBookByID(bookID);
-        BigDecimal oldBookPrice = discountedBook.getPrice();
-        BigDecimal discountedPrice = oldBookPrice.multiply(BigDecimal.valueOf(100).subtract(discountPercentage)).divide(BigDecimal.valueOf(100));
+        BigDecimal discountedPrice = null;
+        if (bookDiscount != null) {
+            BigDecimal discountPercentage = discountsServices.findDiscountById(bookDiscount.getDiscountId()).getDiscountPercentage();
+            BookEntity discountedBook = booksService.findBookByID(bookID);
+            BigDecimal oldBookPrice = discountedBook.getPrice();
+            discountedPrice = oldBookPrice.multiply(BigDecimal.valueOf(100).subtract(discountPercentage)).divide(BigDecimal.valueOf(100));
+        }
         return discountedPrice;
     }
     public void applyBookDiscountWhenOrdering(OrderItemEntity newOrderItem, BookEntity orderingBook) {
         BookDiscountEntity bookDiscount = findBookDiscountByBookId(orderingBook.getId());
-        BigDecimal discountPercentage = discountsServices.findDiscountById(bookDiscount.getDiscountId()).getDiscountPercentage();
-        BigDecimal oldBookPrice = orderingBook.getPrice();
-        BigDecimal discountedPrice = oldBookPrice.multiply(BigDecimal.valueOf(100).subtract(discountPercentage)).divide(BigDecimal.valueOf(100));
-        newOrderItem.setBookPrice(discountedPrice);
+        BigDecimal discountedPrice = null;
+        if (bookDiscount != null) {
+            BigDecimal discountPercentage = discountsServices.findDiscountById(bookDiscount.getDiscountId()).getDiscountPercentage();
+            BigDecimal oldBookPrice = orderingBook.getPrice();
+            discountedPrice = oldBookPrice.multiply(BigDecimal.valueOf(100).subtract(discountPercentage)).divide(BigDecimal.valueOf(100));
+            newOrderItem.setBookPrice(discountedPrice);
+        }
     }
     public boolean ifBookIsDiscounted(Integer bookID) {
         return !(findBookDiscountByBookId(bookID) == null);

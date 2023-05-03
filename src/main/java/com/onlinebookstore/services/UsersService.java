@@ -11,6 +11,8 @@ public interface UsersService {
     UserEntity addNewUser(UserDTO userDTO);
 
     List<UserEntity> findAll(Pageable pageable);
+    List<UserDTO> getAllUserDTO(Pageable pageable);
+
     UserEntity findById(Integer id);
     UserEntity findByEmail(String email);
     List<UserEntity> findAllByPhone(String phone);

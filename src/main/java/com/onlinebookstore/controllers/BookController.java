@@ -1,5 +1,6 @@
 package com.onlinebookstore.controllers;
 
+import com.onlinebookstore.config.GlobalExceptionHandler;
 import com.onlinebookstore.domain.BookEntity;
 import com.onlinebookstore.models.BookDTO;
 import com.onlinebookstore.services.BooksService;
@@ -22,10 +23,12 @@ import java.util.List;
 public class BookController {
     @Autowired
     private BooksService booksService;
+    @Autowired
+    private GlobalExceptionHandler exceptionHandler;
 
     // GUEST, USER, ADMIN
     @GetMapping("/collection_books")
-    public ResponseEntity<List<BookEntity>> findBooksByCollectionName(@RequestParam("collectionName") String collectionName,
+    public ResponseEntity<List<BookDTO>> findBooksByCollectionName(@RequestParam("collectionName") String collectionName,
                                                                       @RequestParam(defaultValue = "0") int page,
                                                                       @RequestParam(defaultValue = "20") int size,
                                                                       @RequestParam(required = false) BigDecimal priceFrom,
@@ -36,18 +39,14 @@ public class BookController {
                                                                       @RequestParam(required = false) String sort,
                                                                       @RequestParam(required = false) String direction) {
         Pageable pageable = PageRequest.of(page, size);
-        List<BookEntity> collectionBooks = null;
-        try {
-            collectionBooks = booksService.findBooksByCategory(collectionName, pageable);
-        } catch (EntityNotFoundException e) {
-            // throw new RuntimeException(e);
-        }
+        List<BookDTO> collectionBooks = booksService.getBooksDTOByCategory(collectionName, pageable);
+
         return getListSortedAndFiltered(page, size, priceFrom, priceTo, ratingFrom, ratingTo, availability, sort, direction, collectionBooks);
     }
 
     // GUEST, USER, ADMIN
     @GetMapping("/books_search")
-    public ResponseEntity<List<BookEntity>> findBooksByTitle(@RequestParam("title") String title,
+    public ResponseEntity<List<BookDTO>> findBooksByTitle(@RequestParam("title") String title,
                                                              @RequestParam(defaultValue = "0") int page,
                                                              @RequestParam(defaultValue = "20") int size,
                                                              @RequestParam(required = false) BigDecimal priceFrom,
@@ -58,14 +57,14 @@ public class BookController {
                                                              @RequestParam(required = false) String sort,
                                                              @RequestParam(required = false) String direction) {
         Pageable pageable = PageRequest.of(page, size);
-        List<BookEntity> resultBooks = booksService.findBooksByTitle(title, pageable);
+        List<BookDTO> resultBooks = booksService.getBooksDTOByTitle(title, pageable);
 
         return getListSortedAndFiltered(page, size, priceFrom, priceTo, ratingFrom, ratingTo, availability, sort, direction, resultBooks);
     }
 
     // GUEST, USER, ADMIN
     @GetMapping("/books_by_author")
-    public ResponseEntity<List<BookEntity>> findBooksByAuthor(@RequestParam("author") String author,
+    public ResponseEntity<List<BookDTO>> findBooksByAuthor(@RequestParam("author") String author,
                                                               @RequestParam(defaultValue = "0") int page,
                                                               @RequestParam(defaultValue = "20") int size,
                                                               @RequestParam(required = false) BigDecimal priceFrom,
@@ -76,14 +75,14 @@ public class BookController {
                                                               @RequestParam(required = false) String sort,
                                                               @RequestParam(required = false) String direction) {
         Pageable pageable = PageRequest.of(page, size);
-        List<BookEntity> books;
+        List<BookDTO> books;
         if (author.trim().split("\\s+").length == 1) {
-            books = booksService.findBooksByAuthorLastName(author.trim(), pageable);
+            books = booksService.getBooksDTOByAuthorLastName(author.trim(), pageable);
         } else {
             String[] names = author.trim().split("\\s+");
-            books = booksService.findBooksByAuthorFirstAndLastNames(names[0], names[1], pageable);
+            books = booksService.getBooksDTOByAuthorFirstAndLastNames(names[0], names[1], pageable);
             if (books.isEmpty()) {
-                books = booksService.findBooksByAuthorFirstAndLastNames(names[1], names[0], pageable);
+                books = booksService.getBooksDTOByAuthorFirstAndLastNames(names[1], names[0], pageable);
             }
         }
 
@@ -92,8 +91,13 @@ public class BookController {
 
     // GUEST, USER, ADMIN
     @GetMapping("/get/{id}")
-    public ResponseEntity<BookEntity> findBookById(@PathVariable Integer id) {
-        BookEntity resultBook = booksService.findBookByID(id);
+    public ResponseEntity<BookDTO> findBookById(@PathVariable Integer id) {
+        BookDTO resultBook = null;
+        try {
+            resultBook = booksService.getBookDTOByID(id);
+        } catch (EntityNotFoundException e) {
+            exceptionHandler.entityNotFoundException(e);
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -164,7 +168,7 @@ public class BookController {
 
 
 
-    private ResponseEntity<List<BookEntity>> getListSortedAndFiltered(@RequestParam(defaultValue = "0") int page,
+    private ResponseEntity<List<BookDTO>> getListSortedAndFiltered(@RequestParam(defaultValue = "0") int page,
                                                                       @RequestParam(defaultValue = "20") int size,
                                                                       @RequestParam(required = false) BigDecimal priceFrom,
                                                                       @RequestParam(required = false) BigDecimal priceTo,
@@ -173,7 +177,7 @@ public class BookController {
                                                                       @RequestParam(required = false) Boolean availability,
                                                                       @RequestParam(required = false) String sort,
                                                                       @RequestParam(required = false) String direction,
-                                                                      List<BookEntity> collectionBooks) {
+                                                                      List<BookDTO> collectionBooks) {
         Pageable pageable;
         if (priceFrom != null && priceTo != null) {
             booksService.filterBooksByPriceRange(collectionBooks, priceFrom, priceTo);

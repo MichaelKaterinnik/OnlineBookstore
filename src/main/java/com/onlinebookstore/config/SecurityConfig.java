@@ -50,7 +50,8 @@ public class SecurityConfig {
            httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/authors/add", "/authors/delete", "/authors/delete/{id}", "/authors/update/**",
                         "/books/add", "/books/delete", "/books/delete/{id}", "/books/update", "/books/update/**",
-                        "/collection/add", "/collection/delete", "/collection/delete/{id}", "/collection/update/**", "/order/delete/{id}",
+                        "/collection/add", "/collection/delete", "/collection/delete/{id}", "/collection/update/**", "/collection/books/**",
+                        "/order/delete/{id}",
                         "/discounts/**",
                         "/user/get_users")
                     .hasAuthority("ADMIN")

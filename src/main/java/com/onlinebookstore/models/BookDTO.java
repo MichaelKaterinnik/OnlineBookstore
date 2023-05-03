@@ -26,6 +26,10 @@ public class BookDTO {
         return id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -136,5 +140,6 @@ public class BookDTO {
     public int hashCode() {
         return Objects.hash(id, title, description, authorId, collectionId, rating, price);
     }
+
 
 }

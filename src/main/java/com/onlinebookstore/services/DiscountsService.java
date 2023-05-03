@@ -16,10 +16,18 @@ public interface DiscountsService {
     void deleteDiscountById(Integer discountID);
 
     DiscountEntity findDiscountById(Integer discountID);
+    DiscountDTO getDiscountDTOById(Integer discountID);
+
     DiscountEntity findDiscountByCode(String discountCode);
+
     List<DiscountEntity> findAllOrderedByExpiredDateDesc(Pageable pageable);
+    List<DiscountDTO> getAllOrderedByExpiredDateDescDTO(Pageable pageable);
+
     List<DiscountEntity> findAllExpiredDiscounts(Pageable pageable);
+    List<DiscountDTO> getAllExpiredDiscountsDTO(Pageable pageable);
+
     List<DiscountEntity> findAllNonExpiredDiscounts(Pageable pageable);
+    List<DiscountDTO> getAllNonExpiredDiscountsDTO(Pageable pageable);
 
     void updateDiscountCode(Integer discountID, String newCode);
     void updateDiscountDescription(Integer discountID, String newDescription);

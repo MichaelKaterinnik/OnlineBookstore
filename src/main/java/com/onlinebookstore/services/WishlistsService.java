@@ -3,6 +3,7 @@ package com.onlinebookstore.services;
 import com.onlinebookstore.domain.BookEntity;
 import com.onlinebookstore.domain.WishlistBookEntity;
 import com.onlinebookstore.domain.WishlistEntity;
+import com.onlinebookstore.models.BookDTO;
 
 import java.util.List;
 
@@ -20,6 +21,8 @@ public interface WishlistsService {
     WishlistEntity findWishlistByUserId(Integer userID);
 
     List<BookEntity> getBooksFromUserWishlist(Integer userId);
+    List<BookDTO> getBooksDTOFromUserWishlist(Integer userId);
+
     List<BookEntity> getBooksByWishlistId(Integer wishlistID);
     List<WishlistBookEntity> findAllItemsInWishlist(Integer wishlistId);
 

@@ -4,6 +4,7 @@ import com.onlinebookstore.dao.CollectionDao;
 import com.onlinebookstore.domain.CollectionEntity;
 import com.onlinebookstore.models.CollectionDTO;
 import jakarta.persistence.EntityNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -14,12 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Service
 public class CollectionsServiceImpl implements CollectionsService {
     @Autowired
     private CollectionDao collectionsRepository;
+
+    private ModelMapper modelMapper;
 
 
     public CollectionEntity createCollection() {
@@ -74,14 +78,19 @@ public class CollectionsServiceImpl implements CollectionsService {
     public List<CollectionEntity> getAllCollections(Pageable pageable) {
         return collectionsRepository.findAll();
     }
+    public List<CollectionDTO> getAllCollectionsDTO(Pageable pageable) {
+        List<CollectionEntity> collectionEntities = collectionsRepository.findAll();
+        return collectionEntities.stream()
+                .map(collectionEntity -> modelMapper.map(collectionEntity, CollectionDTO.class))
+                .collect(Collectors.toList());
+    }
+
     public List<CollectionEntity> getAllCollections() {
         return collectionsRepository.findAll();
     }
-    public CollectionEntity findCollectionByName(String name) throws EntityNotFoundException {
+    public CollectionEntity findCollectionByName(String name) {
         Optional<CollectionEntity> optionalCollection = collectionsRepository.findByNameContainingIgnoreCase(name);
-        if (optionalCollection.isPresent()) {
-            return optionalCollection.get();
-        } else throw new EntityNotFoundException();
+        return optionalCollection.orElse(null);
     }
     public CollectionEntity findCollectionById(Integer id) throws EntityNotFoundException {
         Optional<CollectionEntity> optionalCollection = collectionsRepository.findById(id);

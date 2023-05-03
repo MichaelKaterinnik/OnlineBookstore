@@ -4,6 +4,7 @@ import com.onlinebookstore.dao.UserDao;
 import com.onlinebookstore.domain.UserEntity;
 import com.onlinebookstore.models.UserDTO;
 import jakarta.persistence.EntityNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -14,12 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Service
 public class UsersServiceImpl implements UsersService {
     @Autowired
     private UserDao usersRepository;
+
+    private ModelMapper modelMapper;
 
 
     public UserEntity createUser() {
@@ -51,6 +55,13 @@ public class UsersServiceImpl implements UsersService {
     public List<UserEntity> findAll(Pageable pageable) {
         return usersRepository.findAll();
     }
+    public List<UserDTO> getAllUserDTO(Pageable pageable) {
+        List<UserEntity> userEntities = usersRepository.findAll();
+        return userEntities.stream()
+                .map(user -> modelMapper.map(user, UserDTO.class))
+                .collect(Collectors.toList());
+    }
+
     public UserEntity findById(Integer userID) throws EntityNotFoundException {
         Optional<UserEntity> optionalUser = usersRepository.findById(userID);
         if (optionalUser.isPresent()) {

@@ -1,10 +1,10 @@
 package com.onlinebookstore.services;
 
-import com.onlinebookstore.commons.exceptions.DiscountCannotBeAppliedToThisOrder;
 import com.onlinebookstore.dao.OrderDao;
 import com.onlinebookstore.domain.*;
 import com.onlinebookstore.models.OrderDTO;
 import jakarta.persistence.EntityNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.onlinebookstore.domain.OrderEntity.OrderStatus.WAITING;
 
@@ -30,6 +31,9 @@ public class OrdersServiceImpl implements OrdersService {
     private DiscountsService discountsService;
     @Autowired
     private UserDiscountsService userDiscountsService;
+
+
+    private ModelMapper modelMapper;
 
 
     public OrderEntity createOrder() {
@@ -62,14 +66,14 @@ public class OrdersServiceImpl implements OrdersService {
             return optionalOrder.get();
         } else throw new EntityNotFoundException();
     }
-    public OrderEntity findWaitingOrderOfUser(Integer userID) throws EntityNotFoundException {
+    public OrderEntity findWaitingOrderOfUser(Integer userID) {
         List<OrderEntity> userOrders = orderRepository.findAllByUserId(userID);
         for (OrderEntity order : userOrders) {
             if (order.getStatus() == WAITING) {
                 return order;
             }
         }
-        throw new EntityNotFoundException();
+        return null;
     }
     public List<OrderEntity> getUserOrderHistoryById(Integer userId) {
         return orderRepository.findAllByUserId(userId);
@@ -77,6 +81,13 @@ public class OrdersServiceImpl implements OrdersService {
     public List<OrderEntity> getUserOrdersPageable(UserEntity user, Pageable pageable) {
         return orderRepository.findAllByUser(user);
     }
+    public List<OrderDTO> getUserOrdersDTOPageable(UserEntity user, Pageable pageable) {
+        List<OrderEntity> orderEntities = orderRepository.findAllByUser(user);
+        return orderEntities.stream()
+                .map(orderEntity -> modelMapper.map(orderEntity, OrderDTO.class))
+                .collect(Collectors.toList());
+    }
+
     public List<OrderEntity> getUserOrders(UserEntity user) {
         return orderRepository.findAllByUser(user);
     }
@@ -102,7 +113,7 @@ public class OrdersServiceImpl implements OrdersService {
      * applying the discount according to the promotional code and sending the order (by changing the status to 'PROCESSING')
      */
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
-    public void applyUserDiscountToOrder(OrderEntity order, Integer userID) throws DiscountCannotBeAppliedToThisOrder {
+    public void applyUserDiscountToOrder(OrderEntity order, Integer userID) {
         UserDiscountEntity userDiscount = userDiscountsService.findUserDiscountByUserId(userID);
         if (userDiscount != null) {
             DiscountEntity discount = discountsService.findDiscountById(userDiscount.getDiscountId());
@@ -113,8 +124,6 @@ public class OrdersServiceImpl implements OrdersService {
                 BigDecimal discountedPrice = oldPrice.multiply(BigDecimal.valueOf(100).subtract(discountPercentage)).divide(BigDecimal.valueOf(100));
 
                 order.setTotalPrice(discountedPrice);
-            } else {
-                throw new DiscountCannotBeAppliedToThisOrder();
             }
         }
     }
@@ -123,20 +132,16 @@ public class OrdersServiceImpl implements OrdersService {
      * The method of claiming a discount using a promotional code. Applied last when ordering (after book discounts and custom discount)
      */
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
-    public void applyPromoCode(OrderEntity order, String promoCode) throws EntityNotFoundException, DiscountCannotBeAppliedToThisOrder {
-        DiscountEntity orderDiscount = null;
-        try {
-            orderDiscount = discountsService.findDiscountByCode(promoCode);
-        } catch (EntityNotFoundException e) {
-            throw new EntityNotFoundException(e);
-        }
-        BigDecimal discountPercentage = orderDiscount.getDiscountPercentage();
-        if (order.getStatus().equals(WAITING)) {
-            BigDecimal oldOrderPrice = order.getTotalPrice();
-            BigDecimal discountedPrice = oldOrderPrice.multiply(BigDecimal.valueOf(100).subtract(discountPercentage)).divide(BigDecimal.valueOf(100));
-            order.setTotalPrice(discountedPrice);
-        } else {
-            throw new DiscountCannotBeAppliedToThisOrder();
+    public void applyPromoCode(OrderEntity order, String promoCode) throws EntityNotFoundException {
+        DiscountEntity orderDiscount = discountsService.findDiscountByCode(promoCode);
+
+        if (orderDiscount != null) {
+            BigDecimal discountPercentage = orderDiscount.getDiscountPercentage();
+            if (order.getStatus().equals(WAITING)) {
+                BigDecimal oldOrderPrice = order.getTotalPrice();
+                BigDecimal discountedPrice = oldOrderPrice.multiply(BigDecimal.valueOf(100).subtract(discountPercentage)).divide(BigDecimal.valueOf(100));
+                order.setTotalPrice(discountedPrice);
+            }
         }
     }
 

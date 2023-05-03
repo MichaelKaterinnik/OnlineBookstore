@@ -21,8 +21,12 @@ public interface AuthorsService {
     void deleteAuthorById(Integer id);
 
     List<AuthorEntity> getAllAuthors(Pageable pageable);
+    List<AuthorDTO> getAllAuthorsDTO(Pageable pageable);
+
     public ArrayList<AuthorEntity> findAllOrderByLastName();
     List<AuthorEntity> findAllAuthorsByLastName(String lastName, Pageable pageable);
+    List<AuthorDTO> getAllAuthorsDTOByLastName(String lastName, Pageable pageable);
+
     AuthorEntity findAuthorsByFirstAndLastName(String firstName, String lastName);
     AuthorEntity findAuthorById(Integer authorID);
 }

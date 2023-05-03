@@ -1,8 +1,10 @@
 package com.onlinebookstore.controllers;
 
+import com.onlinebookstore.config.GlobalExceptionHandler;
 import com.onlinebookstore.domain.ReviewEntity;
 import com.onlinebookstore.models.ReviewDTO;
 import com.onlinebookstore.services.ReviewsService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,12 +21,19 @@ import java.util.List;
 public class ReviewController {
     @Autowired
     private ReviewsService reviewsService;
+    @Autowired
+    private GlobalExceptionHandler exceptionHandler;
 
 
     // GUEST, USER, ADMIN
     @GetMapping("/{id}")
-    public ResponseEntity<ReviewEntity> getReviewById(@PathVariable Integer reviewID) {
-        ReviewEntity review = reviewsService.findReviewById(reviewID);
+    public ResponseEntity<ReviewDTO> getReviewById(@PathVariable Integer reviewID) {
+        ReviewDTO review = null;
+        try {
+            review = reviewsService.findReviewDTOById(reviewID);
+        } catch (EntityNotFoundException e) {
+            exceptionHandler.entityNotFoundException(e);
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -33,11 +42,11 @@ public class ReviewController {
 
     // GUEST, USER, ADMIN
     @GetMapping("/book_reviews/{id}")
-    public ResponseEntity<List<ReviewEntity>> getReviewsOfBook(@PathVariable Integer bookID,
+    public ResponseEntity<List<ReviewDTO>> getReviewsOfBook(@PathVariable Integer bookID,
                                                                @RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<ReviewEntity> bookReviews = reviewsService.findReviewsByBookId(bookID, pageable);
+        List<ReviewDTO> bookReviews = reviewsService.findReviewsDTOByBookId(bookID, pageable);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -46,11 +55,11 @@ public class ReviewController {
 
     // GUEST, USER, ADMIN
     @GetMapping("/user_reviews/{id}")
-    public ResponseEntity<List<ReviewEntity>> getReviewsOfUser(@PathVariable Integer userID,
+    public ResponseEntity<List<ReviewDTO>> getReviewsOfUser(@PathVariable Integer userID,
                                                                @RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<ReviewEntity> userReviews = reviewsService.findReviewsByUserID(userID, pageable);
+        List<ReviewDTO> userReviews = reviewsService.findReviewsDTOByUserID(userID, pageable);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

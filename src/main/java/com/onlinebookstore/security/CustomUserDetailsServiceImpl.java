@@ -2,6 +2,7 @@ package com.onlinebookstore.security;
 
 import com.onlinebookstore.domain.UserEntity;
 import com.onlinebookstore.services.UsersService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,8 +23,10 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserEntity user = usersService.findByEmail(email);
-        if (user == null) {
+        UserEntity user = null;
+        try {
+            user = usersService.findByEmail(email);
+        } catch (EntityNotFoundException e) {
             throw new UsernameNotFoundException("User not found");
         }
 

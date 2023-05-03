@@ -19,23 +19,36 @@ public interface BooksService {
 
     List<BookEntity> getAllBooks();
     List<BookEntity> findBooksByAuthor(AuthorEntity author, Pageable pageable);
+    List<BookDTO> getBooksDTOByAuthor(AuthorEntity author, Pageable pageable);
+
     List<BookEntity> findBooksByAuthorLastName(String lastName, Pageable pageable);
+    List<BookDTO> getBooksDTOByAuthorLastName(String lastName, Pageable pageable);
+
     List<BookEntity> findBooksByAuthorFirstAndLastNames(String firstName, String lastName, Pageable pageable);
+    List<BookDTO> getBooksDTOByAuthorFirstAndLastNames(String firstName, String lastName, Pageable pageable);
+
     List<BookEntity> findBooksByTitle(String title, Pageable pageable);
+    List<BookDTO> getBooksDTOByTitle(String title, Pageable pageable);
+
     List<BookEntity> findBooksByCollectionID(Integer id);
     List<BookEntity> findBooksByCategory(String collectionName, Pageable pageable);
+    List<BookDTO> getBooksDTOByCategory(String collectionName, Pageable pageable);
+
     List<BookEntity> findBooksByOrderId(Integer orderId);
     List<BookEntity> findPopularBooks(Pageable pageable);
+    List<BookDTO> getPopularBooksDTO(Pageable pageable);
 
+
+    BookDTO getBookDTOByID(Integer id);
     BookEntity findBookByID(Integer id);
 
     ArrayList<BookEntity> orderBookListByPriceAscending(List<BookEntity> bookList);
     ArrayList<BookEntity> orderBookListByPriceDesc(List<BookEntity> bookList);
     ArrayList<BookEntity> orderBookListByRatingAsc(List<BookEntity> bookList);
     ArrayList<BookEntity> orderBookListByRatingDesc(List<BookEntity> bookList);
-    List<BookEntity> filterBooksByPriceRange(List<BookEntity> books, BigDecimal minPrice, BigDecimal maxPrice);
-    List<BookEntity> filterBooksByRating(List<BookEntity> books, BigDecimal minRating, BigDecimal maxRating);
-    List<BookEntity> filterBooksByAvailability(List<BookEntity> books);
+    List<BookDTO> filterBooksByPriceRange(List<BookDTO> books, BigDecimal minPrice, BigDecimal maxPrice);
+    List<BookDTO> filterBooksByRating(List<BookDTO> books, BigDecimal minRating, BigDecimal maxRating);
+    List<BookDTO> filterBooksByAvailability(List<BookDTO> books);
 
     void updateBookInfo(Integer bookID, String description, BigDecimal rating, BigDecimal price, Integer quantity, Boolean availability, byte[] coverImage);
     void updateBookDPQA(Integer bookID, String description, BigDecimal price, Integer quantity, Boolean availability);

@@ -19,6 +19,10 @@ public class DiscountDTO {
         return id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public String getCode() {
         return code;
     }
@@ -72,5 +76,7 @@ public class DiscountDTO {
     public int hashCode() {
         return Objects.hash(id, code, description, discountPercentage, startDate, endDate);
     }
+
+
 }
 

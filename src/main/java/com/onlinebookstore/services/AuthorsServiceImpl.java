@@ -4,6 +4,7 @@ import com.onlinebookstore.dao.AuthorDao;
 import com.onlinebookstore.domain.AuthorEntity;
 import com.onlinebookstore.models.AuthorDTO;
 import jakarta.persistence.EntityNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -15,12 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Service
 public class AuthorsServiceImpl implements AuthorsService {
     @Autowired
     private AuthorDao authorsRepository;
+
+    private ModelMapper modelMapper;
 
 
     public AuthorEntity createAuthor() {
@@ -74,17 +78,31 @@ public class AuthorsServiceImpl implements AuthorsService {
     public List<AuthorEntity> getAllAuthors(Pageable pageable) {
         return authorsRepository.findAll();
     }
+    public List<AuthorDTO> getAllAuthorsDTO(Pageable pageable) {
+        List<AuthorEntity> authorEntities = authorsRepository.findAll();
+        return authorEntities.stream()
+                .map(authorEntity -> modelMapper.map(authorEntity, AuthorDTO.class))
+                .collect(Collectors.toList());
+    }
     public ArrayList<AuthorEntity> findAllOrderByLastName() {
         return (ArrayList<AuthorEntity>) authorsRepository.findAllOrderByLastNameAsc();
     }
     public List<AuthorEntity> findAllAuthorsByLastName(String lastName, Pageable pageable) {
         return authorsRepository.findAllByLastNameContainingIgnoreCase(lastName);
     }
-    public AuthorEntity findAuthorsByFirstAndLastName(String firstName, String lastName) throws EntityNotFoundException {
+    public List<AuthorDTO> getAllAuthorsDTOByLastName(String lastName, Pageable pageable) {
+        List<AuthorEntity> authorEntities = authorsRepository.findAllByLastNameContainingIgnoreCase(lastName);
+        return authorEntities.stream()
+                .map(authorEntity -> modelMapper.map(authorEntity, AuthorDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    public AuthorEntity findAuthorsByFirstAndLastName(String firstName, String lastName){
         Optional<AuthorEntity> optionalAuthor = authorsRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName);
         if (optionalAuthor.isPresent()) {
             return optionalAuthor.get();
-        } else throw new EntityNotFoundException();
+        }
+        else return null;
     }
     public AuthorEntity findAuthorById(Integer authorID) throws EntityNotFoundException {
         Optional<AuthorEntity> optionalAuthor = authorsRepository.findById(authorID);

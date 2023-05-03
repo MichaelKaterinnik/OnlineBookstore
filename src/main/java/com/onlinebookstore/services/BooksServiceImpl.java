@@ -6,6 +6,7 @@ import com.onlinebookstore.domain.BookEntity;
 import com.onlinebookstore.domain.ReviewEntity;
 import com.onlinebookstore.models.BookDTO;
 import jakarta.persistence.EntityNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,8 @@ public class BooksServiceImpl implements BooksService {
     @Autowired
     private ReviewsService reviewsService;
 
+    private ModelMapper modelMapper;
+
 
     public BookEntity createBook() {
         return new BookEntity();
@@ -46,8 +49,11 @@ public class BooksServiceImpl implements BooksService {
         newBook.setDescription(book.getDescription());
 
         // визначаємо автора
-        AuthorEntity author = authorsService.findAuthorsByFirstAndLastName(book.getAuthorFirstName(), book.getAuthorLastName());
+        AuthorEntity author = null;
+        author = authorsService.findAuthorsByFirstAndLastName(book.getAuthorFirstName(), book.getAuthorLastName());
+
         if (author != null) {
+            author = authorsService.findAuthorsByFirstAndLastName(book.getAuthorFirstName(), book.getAuthorLastName());
             newBook.setAuthorId(author.getId());
         } else {
             authorsService.addNewAuthorForNewBook(book.getAuthorFirstName(), book.getAuthorLastName());
@@ -84,34 +90,84 @@ public class BooksServiceImpl implements BooksService {
     public List<BookEntity> findBooksByAuthor(AuthorEntity author, Pageable pageable) {
         return booksRepository.findAllByAuthorOrderByAvailabilityDesc(author);
     }
+    public List<BookDTO> getBooksDTOByAuthor(AuthorEntity author, Pageable pageable) {
+        List<BookEntity> bookEntities = booksRepository.findAllByAuthorOrderByAvailabilityDesc(author);
+        return bookEntities.stream()
+                .map(bookEntity -> modelMapper.map(bookEntity, BookDTO.class))
+                .collect(Collectors.toList());
+    }
+
     public List<BookEntity> findBooksByAuthorLastName(String lastName, Pageable pageable) {
         return booksRepository.findAllByAuthorLastNameContainingIgnoreCaseOrderByAvailabilityDesc(lastName);
+    }
+    public List<BookDTO> getBooksDTOByAuthorLastName(String lastName, Pageable pageable) {
+        List<BookEntity> bookEntities = booksRepository.findAllByAuthorLastNameContainingIgnoreCaseOrderByAvailabilityDesc(lastName);
+        return bookEntities.stream()
+                .map(bookEntity -> modelMapper.map(bookEntity, BookDTO.class))
+                .collect(Collectors.toList());
     }
     public List<BookEntity> findBooksByAuthorFirstAndLastNames(String firstName, String lastName, Pageable pageable) {
         return booksRepository.findAllByAuthorFirstNameContainingIgnoreCaseOrAuthorLastNameContainingIgnoreCase(firstName, lastName);
     }
+    public List<BookDTO> getBooksDTOByAuthorFirstAndLastNames(String firstName, String lastName, Pageable pageable) {
+        List<BookEntity> bookEntities = booksRepository.findAllByAuthorFirstNameContainingIgnoreCaseOrAuthorLastNameContainingIgnoreCase(firstName, lastName);
+        return bookEntities.stream()
+                .map(bookEntity -> modelMapper.map(bookEntity, BookDTO.class))
+                .collect(Collectors.toList());
+    }
     public List<BookEntity> findBooksByTitle(String title, Pageable pageable) {
         return booksRepository.findAllByTitleContainingIgnoreCase(title);
+    }
+    public List<BookDTO> getBooksDTOByTitle(String title, Pageable pageable) {
+        List<BookEntity> bookEntities = booksRepository.findAllByTitleContainingIgnoreCase(title);
+        return bookEntities.stream()
+                .map(bookEntity -> modelMapper.map(bookEntity, BookDTO.class))
+                .collect(Collectors.toList());
     }
     public List<BookEntity> findBooksByCollectionID(Integer id) {
         return booksRepository.findBooksByCollectionId(id);
     }
-    public List<BookEntity> findBooksByCategory(String collectionName, Pageable pageable) throws EntityNotFoundException {
+    public List<BookEntity> findBooksByCategory(String collectionName, Pageable pageable) {
         return booksRepository.findByCollectionName(collectionName);
+    }
+    public List<BookDTO> getBooksDTOByCategory(String collectionName, Pageable pageable) {
+        List<BookEntity> bookEntities = booksRepository.findByCollectionName(collectionName);
+        return bookEntities.stream()
+                .map(bookEntity -> modelMapper.map(bookEntity, BookDTO.class))
+                .collect(Collectors.toList());
     }
     public List<BookEntity> findBooksByOrderId(Integer orderId) {
         return booksRepository.findBooksByOrderId(orderId);
     }
-    public BookEntity findBookByID(Integer id) throws EntityNotFoundException {
+    public BookDTO getBookDTOByID(Integer id) throws EntityNotFoundException {
         Optional<BookEntity> optionalBook = booksRepository.findById(id);
         if (optionalBook.isPresent()) {
-            return optionalBook.get();
+            BookEntity bookEntity = optionalBook.get();
+            BookDTO bookDTO = new BookDTO();
+            bookDTO.setTitle(bookEntity.getTitle());
+            bookDTO.setDescription(bookEntity.getDescription());
+            bookDTO.setAuthorFirstName(bookEntity.getAuthor().getFirstName());
+            bookDTO.setAuthorLastName(bookEntity.getAuthor().getLastName());
+            bookDTO.setPrice(bookEntity.getPrice());
+            bookDTO.setQuantity(bookEntity.getQuantity());
+            bookDTO.setCoverImage(bookEntity.getCoverImage());
+            return bookDTO;
         } else {
             throw new EntityNotFoundException();
         }
     }
+    public BookEntity findBookByID(Integer id) {
+        Optional<BookEntity> optionalBook = booksRepository.findById(id);
+        return optionalBook.orElse(null);
+    }
     public List< BookEntity> findPopularBooks(Pageable pageable) {
         return booksRepository.findPopularBooks();
+    }
+    public List<BookDTO> getPopularBooksDTO(Pageable pageable) {
+        List<BookEntity> bookEntities = booksRepository.findPopularBooks();
+        return bookEntities.stream()
+                .map(bookEntity -> modelMapper.map(bookEntity, BookDTO.class))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -137,20 +193,20 @@ public class BooksServiceImpl implements BooksService {
                 .sorted(Comparator.comparing(BookEntity::getRating).reversed())
                 .collect(Collectors.toList());
     }
-    public List<BookEntity> filterBooksByPriceRange(List<BookEntity> books, BigDecimal minPrice, BigDecimal maxPrice) {
+    public List<BookDTO> filterBooksByPriceRange(List<BookDTO> books, BigDecimal minPrice, BigDecimal maxPrice) {
         return books.stream()
                 .filter(book -> book.getPrice().compareTo(minPrice) >= 0 && book.getPrice().compareTo(maxPrice) <= 0)
-                .sorted(Comparator.comparing(BookEntity::getPrice))
+                .sorted(Comparator.comparing(BookDTO::getPrice))
                 .collect(Collectors.toList());
     }
-    public List<BookEntity> filterBooksByRating(List<BookEntity> books, BigDecimal minRating, BigDecimal maxRating) {
+    public List<BookDTO> filterBooksByRating(List<BookDTO> books, BigDecimal minRating, BigDecimal maxRating) {
         return books.stream()
                 .filter(book -> book.getRating().compareTo(minRating) >= 0 && book.getRating().compareTo(maxRating) <= 0)
                 .collect(Collectors.toList());
     }
-    public List<BookEntity> filterBooksByAvailability(List<BookEntity> books) {
+    public List<BookDTO> filterBooksByAvailability(List<BookDTO> books) {
         return books.stream()
-                .filter(BookEntity::getAvailability)
+                .filter(BookDTO::getAvailability)
                 .collect(Collectors.toList());
     }
 

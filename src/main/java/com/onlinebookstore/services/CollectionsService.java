@@ -20,7 +20,10 @@ public interface CollectionsService {
     void deleteCollectionById(Integer id);
 
     List<CollectionEntity> getAllCollections(Pageable pageable);
+    List<CollectionDTO> getAllCollectionsDTO(Pageable pageable);
+
     List<CollectionEntity> getAllCollections();
+
     CollectionEntity findCollectionByName(String name);
     CollectionEntity findCollectionById(Integer id);
 }

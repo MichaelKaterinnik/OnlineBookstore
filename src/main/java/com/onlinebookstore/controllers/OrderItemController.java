@@ -1,5 +1,7 @@
 package com.onlinebookstore.controllers;
 
+import com.onlinebookstore.commons.exceptions.BookIsNotAvailableException;
+import com.onlinebookstore.config.GlobalExceptionHandler;
 import com.onlinebookstore.domain.OrderEntity;
 import com.onlinebookstore.domain.OrderItemEntity;
 import com.onlinebookstore.models.OrderItemDTO;
@@ -21,17 +23,20 @@ public class OrderItemController {
     @Autowired
     private OrderItemsService orderItemsService;
     private OrdersService ordersService;
+    @Autowired
+    private GlobalExceptionHandler globalExceptionHandler;
 
 
     // USER, ADMIN
     @GetMapping("/get_all")
-    public ResponseEntity<List<OrderItemEntity>> getOrderItems(@RequestParam("order") Integer orderID) {
-        List<OrderItemEntity> orderItems = orderItemsService.getOrderItemsByOrderId(orderID);
+    public ResponseEntity<List<OrderItemDTO>> getOrderItems(@RequestParam("order") Integer orderID) {
+        List<OrderItemDTO> orderItems = orderItemsService.getOrderItemsDTOByOrderId(orderID);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(orderItems, headers, HttpStatus.OK);
     }
+
 
     /**
      * Adding a book to the user's cart (order) is implemented here. First, there is a check to see if there are any unconfirmed orders,
@@ -46,7 +51,16 @@ public class OrderItemController {
         } catch (EntityNotFoundException e) {
             userOrder = ordersService.addOrder(userId);
         }
-        OrderItemEntity orderItem = orderItemsService.addOrderItemToOrder(orderItemDTO, userOrder.getId());
+
+        OrderItemEntity orderItem = null;
+        try {
+            orderItem = orderItemsService.addOrderItemToOrder(orderItemDTO, userOrder.getId());
+        } catch (BookIsNotAvailableException e) {
+            globalExceptionHandler.bookIsNotAvailableException(e);
+        } catch (IllegalArgumentException f) {
+            globalExceptionHandler.illegalArgumentWhenBuying(f);
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).body(orderItem);
     }
 

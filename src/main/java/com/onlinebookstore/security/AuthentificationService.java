@@ -5,6 +5,7 @@ import com.onlinebookstore.models.AuthentificationRequest;
 import com.onlinebookstore.models.AuthentificationResponse;
 import com.onlinebookstore.models.RegisterRequest;
 import com.onlinebookstore.services.UsersService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,7 +39,7 @@ public class AuthentificationService {
         return new AuthentificationResponse(jwtTokenService.generateToken(customUserDetails));
     }
 
-    public AuthentificationResponse login(AuthentificationRequest registerRequest) {
+    public AuthentificationResponse login(AuthentificationRequest registerRequest) throws EntityNotFoundException {
         Authentication authentication = authentificationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(registerRequest.getEmail(), registerRequest.getPassword())
         );

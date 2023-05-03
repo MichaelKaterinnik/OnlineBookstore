@@ -1,11 +1,10 @@
 package com.onlinebookstore.controllers;
 
-import com.onlinebookstore.commons.exceptions.DiscountCannotBeAppliedToThisOrder;
+import com.onlinebookstore.config.GlobalExceptionHandler;
 import com.onlinebookstore.domain.OrderEntity;
 import com.onlinebookstore.domain.UserEntity;
-import com.onlinebookstore.services.OrderItemsService;
+import com.onlinebookstore.models.OrderDTO;
 import com.onlinebookstore.services.OrdersService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,17 +23,15 @@ public class OrderController {
     @Autowired
     private OrdersService ordersService;
     @Autowired
-    private OrderItemsService orderItemsService;
+    private GlobalExceptionHandler exceptionHandler;
 
 
 
     // USER, ADMIN
     @GetMapping("/user_order")
     public ResponseEntity<OrderEntity> getUserBasket(@RequestParam("user") UserEntity user) {
-        OrderEntity unconfirmedUserOrder = null;
-        try {
-            unconfirmedUserOrder = ordersService.findWaitingOrderOfUser(user.getId());
-        } catch (EntityNotFoundException e) {
+        OrderEntity unconfirmedUserOrder = ordersService.findWaitingOrderOfUser(user.getId());
+        if (unconfirmedUserOrder == null) {
             return ResponseEntity.notFound().build();
         }
 
@@ -45,22 +42,14 @@ public class OrderController {
 
     // USER, ADMIN
     @PutMapping("/confirm")
-    public ResponseEntity<PaymentResponse> confirmOrder(@RequestParam("order") OrderEntity order, @RequestParam("user") UserEntity user, @RequestParam("promo") String promoCode) {
+    public ResponseEntity<PaymentResponse> confirmOrder(@RequestParam("order") OrderEntity order,
+                                                        @RequestParam("user") UserEntity user,
+                                                        @RequestParam("promo") String promoCode) {
         // finding user discount to apply to order price
-        try {
-            ordersService.applyUserDiscountToOrder(order, user.getId());
-        } catch (DiscountCannotBeAppliedToThisOrder e) {
-            throw new RuntimeException(e);
-        }
+        ordersService.applyUserDiscountToOrder(order, user.getId());
 
         // finding order discount (promocode) to apply to order price
-        try {
-            ordersService.applyPromoCode(order, promoCode);
-        } catch (EntityNotFoundException e) {
-            // throw new RuntimeException(e);
-        } catch (DiscountCannotBeAppliedToThisOrder ignored) {
-
-        }
+        ordersService.applyPromoCode(order, promoCode);
 
         // payment
         PaymentResponse response = new PaymentResponse(order.getTotalPrice());
@@ -72,11 +61,11 @@ public class OrderController {
 
     // USER, ADMIN
     @GetMapping("/user_history")
-    public ResponseEntity<List<OrderEntity>> getUserOrdersPageable(@RequestParam("user") UserEntity user,
-                                                                   @RequestParam(defaultValue = "0") int page,
-                                                                   @RequestParam(defaultValue = "20") int size) {
+    public ResponseEntity<List<OrderDTO>> getUserOrdersPageable(@RequestParam("user") UserEntity user,
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<OrderEntity> userOrdersHistory = ordersService.getUserOrdersPageable(user, pageable);
+        List<OrderDTO> userOrdersHistory = ordersService.getUserOrdersDTOPageable(user, pageable);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

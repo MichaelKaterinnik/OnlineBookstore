@@ -1,6 +1,9 @@
 package com.onlinebookstore.controllers;
 
 import com.onlinebookstore.domain.*;
+import com.onlinebookstore.models.BookDTO;
+import com.onlinebookstore.models.OrderDTO;
+import com.onlinebookstore.models.ReviewDTO;
 import com.onlinebookstore.models.UserDTO;
 import com.onlinebookstore.services.OrdersService;
 import com.onlinebookstore.services.ReviewsService;
@@ -36,17 +39,17 @@ public class UserController {
                                               @RequestParam(defaultValue = "0") int page,
                                               @RequestParam(defaultValue = "20") int size) {
         WishlistEntity userWishlist = wishlistsService.findWishlistByUserId(user.getId());
-        List<BookEntity> wishlistBooks = wishlistsService.getBooksFromUserWishlist(user.getId());
+        List<BookDTO> wishlistBooks = wishlistsService.getBooksDTOFromUserWishlist(user.getId());
 
-        OrderEntity unconfirmedUserOrder = null;
+        OrderDTO unconfirmedUserOrder = null;
         Pageable pageable = PageRequest.of(page, size);
-        List<OrderEntity> userOrdersHistory = ordersService.getUserOrdersPageable(user, pageable);
-        for (OrderEntity order : userOrdersHistory) {
+        List<OrderDTO> userOrdersHistory = ordersService.getUserOrdersDTOPageable(user, pageable);
+        for (OrderDTO order : userOrdersHistory) {
             if (order.getStatus() == OrderEntity.OrderStatus.WAITING)
                 unconfirmedUserOrder = order;
         }
 
-        List<ReviewEntity> userReviews = reviewsService.findUserReviews(user);
+        List<ReviewDTO> userReviews = reviewsService.findUserReviewsDTO(user);
 
         Map<String, Object> response = new HashMap<>();
         response.put("wishlist", userWishlist);
@@ -63,10 +66,10 @@ public class UserController {
 
     // ADMIN
     @GetMapping("/get_users")
-    public ResponseEntity<List<UserEntity>> getUsers(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<List<UserDTO>> getUsers(@RequestParam(defaultValue = "0") int page,
                                                      @RequestParam(defaultValue = "50") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<UserEntity> users = usersService.findAll(pageable);
+        List<UserDTO> users = usersService.getAllUserDTO(pageable);
 
         return ResponseEntity.ok(users);
     }
