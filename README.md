@@ -27,21 +27,13 @@ https://github.com/MichaelKaterinnik/OnlineBookstoreFrontend/tree/master
 
 ## Функціональність
 
-У поточній версії при взаємодії з додатком можна реєструвати та зберігати інформацію про книги, письменників,
-добірки книг за певними параметрами. Книги можна оцінювати та залишати на них рецензії, але для цього треба мати статус
-зареєстрованого користувача. Також зареєстрований користувач може додавати книги до списку бажаних товарів.
+In the current version, when interacting with the application, it is possible to register and save information about books, writers, book collections according to certain parameters. You can rate books and leave reviews on them, but for this you need to have the status of a registered user. A registered user can also add books to the wish list.
 
-На головній сторінці реалізований вивід наявних у продажу книг, відсортованих за популярністю. Крім того, можна 
-переглядати добірки книг за різними критеріями (жанрами). Реалізований пошук книг за належністю до певної добірки, за
-належністю до певного автора, а також за назвою. Вивід списків книг може бути фільтровано за певним проміжком ціни або 
-рейтингів.
+On the main page there is a list of books available for sale, sorted by popularity. In addition, you can view selections of books by various criteria (genres). The search for books by belonging to a certain selection, by belonging to a certain author, as well as by title has been implemented. The output of book lists can be filtered by a certain range of price or ratings.
 
-Реалізована авторизація та автентифікація - зареєстровані користувачі мають власний 
-особистий кабінет, в якому зберігається їх історія замовлень, є доступ до залишених відгуків про книги тавішліста. Проте,
-користувачі не можуть додавати/видаляти/оновлювати інформацію щодо книг, авторів чи добірок книг, а також, відповідно 
-і зареєстрованих користувачів у базі даних - це прерогатива лише адміністратора.
+Authorization and authentication are implemented - registered users have their own personal account in which their order history is stored, there is access to the reviews left about the books on the list. However, users cannot add/delete/update information about books, authors or book collections, as well as registered users in the database - this is the prerogative of the administrator only.
 
-Розподіл ролей, авторизація та автентифікація реалізована за допомогою Spring Security із застосуванням jwt-технології.
+Distribution of roles, authorization and authentication is implemented using Spring Security using jwt technology.
 
 ## License
 
