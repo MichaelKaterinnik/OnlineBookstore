@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Даний клас є фільтром автентифікації, який перевіряє наявність токена JWT у заголовку запиту. Якщо токен відсутній або містить
@@ -45,27 +47,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String email;
 
-        if (token != null && token.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        String path = request.getRequestURI();
 
-        jwt = token != null ? token.substring(7) : null;
+        if (isTokenRequired(path)) {
+            if (token != null && token.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
-        email = jwtTokenService.extactEmail(jwt);
+            jwt = token != null ? token.substring(7) : null;
 
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            email = jwtTokenService.extactEmail(jwt);
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-            if (jwtTokenService.isTokenValid(token, userDetails)) {
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationFilter =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                usernamePasswordAuthenticationFilter.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationFilter);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                if (jwtTokenService.isTokenValid(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationFilter =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                    usernamePasswordAuthenticationFilter.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationFilter);
+                }
             }
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isTokenRequired(String path) {
+        List<String> tokenRequiredPaths = Arrays.asList(
+                "/authors/add", "/authors/delete", "/authors/delete/{id}", "/authors/update/**",
+                "/books/add", "/books/delete", "/books/delete/{id}", "/books/update", "/books/update/**",
+                "/collection/add", "/collection/delete", "/collection/delete/{id}", "/collection/update/**", "/collection/books/**",
+                "/order/delete/{id}",
+                "/discounts/**",
+                "/user/get_users",
+                "/order/add", "/order/user_order", "/order/user_history", "/order/confirm", "/order/items/**",
+                "/user/cabinet", "/user_wishlist/**",
+                "/reviews/add", "/reviews/update/{id}", "/reviews/delete/{id}"
+        );
+
+        return tokenRequiredPaths.contains(path);
     }
 }

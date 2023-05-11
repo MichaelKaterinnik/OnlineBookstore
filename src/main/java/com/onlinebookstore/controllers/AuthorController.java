@@ -53,7 +53,7 @@ public class AuthorController {
 
     // GUEST, USER, ADMIN
     @GetMapping("/get/{name}")
-    public ResponseEntity<List<AuthorDTO>> getAuthorsByLastName(@PathVariable String authorName,
+    public ResponseEntity<List<AuthorDTO>> getAuthorsByLastName(@PathVariable("name") String authorName,
                                                                    @RequestParam(defaultValue = "0") int page,
                                                                    @RequestParam(defaultValue = "30") int size) {
         Pageable pageable = PageRequest.of(page, size);

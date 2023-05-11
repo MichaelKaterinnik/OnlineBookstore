@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
@@ -29,7 +30,7 @@ import java.util.function.Function;
 @Service
 public class JwtTokenService {
 
-    // private static final String SECRET_KEY = "cdthlkjdcr11ktybyuhfl88";
+    private static final String SIGNING_KEY = "Kekistani88playstyle";
 
     public String extactEmail(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -69,7 +70,7 @@ public class JwtTokenService {
     }
 
     private Key getSignInKey() {
-        return Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        byte[] signingKeyBytes = SIGNING_KEY.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(signingKeyBytes);
     }
-
 }
