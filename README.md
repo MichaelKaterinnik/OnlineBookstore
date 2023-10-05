@@ -21,7 +21,6 @@ https://github.com/MichaelKaterinnik/OnlineBookstoreFrontend/tree/master
 
 * Spring Boot
 * Spring Security
-* Thymeleaf
 * HikariCP
 * Maven
 
