@@ -15,7 +15,8 @@ product. The application is developed using Spring Boot and Maven.
 
 WARNING! Only the back-end (server) part of the project is implemented in this repository. For correct work
 the application needs to connect it with the front-end part, which is located at the link :
-https://github.com/MichaelKaterinnik/OnlineBookstoreFrontend/tree/master  (*not completed yet, the repository is private)
+
+https://github.com/MichaelKaterinnik/OnlineBookstoreFrontend/tree/master  !--- not completed yet, the repository is private) ---
 
 ## Used technologies and tools
 
